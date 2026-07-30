@@ -1,13 +1,13 @@
 # yaml-language-server: $schema=./quartz/plugins/quartz-plugins.schema.json
 configuration:
-  pageTitle: Quartz 5
+  pageTitle: Ciberseguridad
   pageTitleSuffix: ""
   enableSPA: true
   enablePopovers: true
   analytics:
     provider: plausible
   locale: en-US
-  baseUrl: alexachalma.github.io/quartz
+  baseUrl: alexachalma.github.io/blog
   ignorePatterns:
     - private
     - templates
@@ -148,7 +148,7 @@ plugins:
       position: left
       priority: 50
   - source: "@quartz-community/graph"
-    enabled: true
+    enabled: false
     layout:
       position: right
       priority: 10
@@ -234,7 +234,7 @@ plugins:
   - source: "@quartz-community/recent-notes"
     enabled: true
     options:
-      title: Recent Notes
+      title: Notas Recientes
       limit: 5
       linkToMore: false
       showTags: true
