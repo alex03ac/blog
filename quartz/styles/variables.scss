@@ -1,58 +1,138 @@
 @use "sass:map";
 
-/**
- * Layout breakpoints
- * $mobile: screen width below this value will use mobile styles
- * $desktop: screen width above this value will use desktop styles
- * Screen width between $mobile and $desktop width will use the tablet layout.
- * assuming mobile < desktop
- */
+// ============================================================
+//  QUARTZ v5 — PREMIUM THEME VARIABLES
+//  Blog Ciberseguridad — Sistema de Tokens
+//
+//  REGLA DE ORO: Este archivo es la única fuente de verdad
+//  para todos los valores de layout y espaciado.
+//  NO hardcodear valores en custom.scss.
+// ============================================================
+
+// ------------------------------------------------------------
+//  BREAKPOINTS
+//  mobile < 800px  |  tablet 800–1200px  |  desktop > 1200px
+// ------------------------------------------------------------
 $breakpoints: (
   mobile: 800px,
   desktop: 1200px,
 );
 
-$mobile: "(max-width: #{map.get($breakpoints, mobile)})";
-$tablet: "(min-width: #{map.get($breakpoints, mobile)}) and (max-width: #{map.get($breakpoints, desktop)})";
+$mobile:  "(max-width: #{map.get($breakpoints, mobile)})";
+$tablet:  "(min-width: #{map.get($breakpoints, mobile)}) and (max-width: #{map.get($breakpoints, desktop)})";
 $desktop: "(min-width: #{map.get($breakpoints, desktop)})";
 
-$pageWidth: #{map.get($breakpoints, mobile)};
-$sidePanelWidth: 320px; //380px;
-$topSpacing: 6rem;
-$boldWeight: 700;
-$semiBoldWeight: 600;
-$normalWeight: 400;
+// ------------------------------------------------------------
+//  LAYOUT DIMENSIONS
+//
+//  PROBLEMA ORIGINAL:
+//    $sidePanelWidth: 320px  ×2 = 640px
+//    + gaps + padding = contenido real ≈ 680px
+//    $pageWidth = 800px (el breakpoint mobile, no el ancho real)
+//
+//  SOLUCIÓN:
+//    - Sidebar izquierdo compactado a 260px
+//    - Sidebar derecho (TOC) a 220px — más compacto
+//    - Contenedor total sube a 1440px
+//    - Centro real efectivo ≈ 1000px en desktop
+// ------------------------------------------------------------
+$sidePanelWidth:      260px;   // Explorer compactado (era 320px)
+$rightPanelWidth:     220px;   // TOC + Backlinks (era también 320px)
+$pageWidth:           800px;   // Se mantiene solo para $mobile media query
+$contentMaxWidth:    1000px;   // Ancho máximo real del texto (nuevo token)
+$containerMaxWidth:  1440px;   // Ancho máximo del grid completo (nuevo token)
+$topSpacing:          4rem;    // Reducido de 6rem — más compacto
 
+// ------------------------------------------------------------
+//  TIPOGRAFÍA
+// ------------------------------------------------------------
+$boldWeight:      700;
+$semiBoldWeight:  600;
+$normalWeight:    400;
+
+// Escala tipográfica para el contenido
+// Basada en ratio 1.25 (Major Third) — legibilidad óptima
+$fontSize-xs:   0.75rem;   // 12px — metadata, badges
+$fontSize-sm:   0.8125rem; // 13px — caption, footnotes
+$fontSize-base: 0.9375rem; // 15px — cuerpo principal (era 16px, 15 es más denso)
+$fontSize-md:   1rem;      // 16px — subtítulos pequeños
+$fontSize-lg:   1.125rem;  // 18px — h4
+$fontSize-xl:   1.25rem;   // 20px — h3
+$fontSize-2xl:  1.5rem;    // 24px — h2
+$fontSize-3xl:  1.875rem;  // 30px — h1
+
+// Line heights
+$lineHeight-tight:  1.35;  // headings
+$lineHeight-snug:   1.5;   // code, UI elements
+$lineHeight-normal: 1.7;   // body text — lectura larga
+$lineHeight-loose:  1.85;  // notas, callouts
+
+// Letter spacing
+$tracking-tight:  -0.02em;  // headings grandes
+$tracking-normal:  0em;
+$tracking-wide:    0.04em;  // labels, badges, código inline
+
+// ------------------------------------------------------------
+//  SPACING SYSTEM (base 4px)
+// ------------------------------------------------------------
+$space-1:  0.25rem;   //  4px
+$space-2:  0.5rem;    //  8px
+$space-3:  0.75rem;   // 12px
+$space-4:  1rem;      // 16px
+$space-5:  1.25rem;   // 20px
+$space-6:  1.5rem;    // 24px
+$space-8:  2rem;      // 32px
+$space-10: 2.5rem;    // 40px
+$space-12: 3rem;      // 48px
+$space-16: 4rem;      // 64px
+
+// ------------------------------------------------------------
+//  BORDER RADIUS
+// ------------------------------------------------------------
+$radius-sm:   3px;   // inline code, badges
+$radius-md:   6px;   // bloques de código, callouts, tablas
+$radius-lg:  10px;   // cards, imágenes
+$radius-full: 9999px; // pills, tags
+
+// ------------------------------------------------------------
+//  GRID DEFINITIONS
+//
+//  CRÍTICO: $desktopGrid ahora usa $rightPanelWidth (220px)
+//  en lugar de duplicar $sidePanelWidth (260px).
+//  El centro obtiene: 1440 - 260 - 220 - gaps ≈ 920-1000px
+// ------------------------------------------------------------
 $mobileGrid: (
-  templateRows: "auto auto auto auto auto",
+  templateRows:    "auto auto auto auto auto",
   templateColumns: "auto",
-  rowGap: "5px",
-  columnGap: "5px",
+  rowGap:          "5px",
+  columnGap:       "5px",
   templateAreas:
-    '"grid-sidebar-left"\
-      "grid-header"\
-      "grid-center"\
-      "grid-sidebar-right"\
-      "grid-footer"',
+    '"grid-sidebar-left"
+     "grid-header"
+     "grid-center"
+     "grid-sidebar-right"
+     "grid-footer"',
 );
+
 $tabletGrid: (
-  templateRows: "auto auto auto auto",
+  templateRows:    "auto auto auto auto",
   templateColumns: "#{$sidePanelWidth} auto",
-  rowGap: "5px",
-  columnGap: "5px",
+  rowGap:          "5px",
+  columnGap:       "20px",
   templateAreas:
-    '"grid-sidebar-left grid-header"\
-      "grid-sidebar-left grid-center"\
-      "grid-sidebar-left grid-sidebar-right"\
-      "grid-sidebar-left grid-footer"',
+    '"grid-sidebar-left grid-header"
+     "grid-sidebar-left grid-center"
+     "grid-sidebar-left grid-sidebar-right"
+     "grid-sidebar-left grid-footer"',
 );
+
 $desktopGrid: (
-  templateRows: "auto auto auto",
-  templateColumns: "#{$sidePanelWidth} auto #{$sidePanelWidth}",
-  rowGap: "5px",
-  columnGap: "5px",
+  templateRows:    "auto auto auto",
+  templateColumns: "#{$sidePanelWidth} auto #{$rightPanelWidth}",
+  rowGap:          "5px",
+  columnGap:       "32px",
   templateAreas:
-    '"grid-sidebar-left grid-header grid-sidebar-right"\
-      "grid-sidebar-left grid-center grid-sidebar-right"\
-      "grid-sidebar-left grid-footer grid-sidebar-right"',
+    '"grid-sidebar-left grid-header    grid-sidebar-right"
+     "grid-sidebar-left grid-center    grid-sidebar-right"
+     "grid-sidebar-left grid-footer    grid-sidebar-right"',
 );
