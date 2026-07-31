@@ -73,9 +73,20 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--headerFont);
   font-weight: 700;
   line-height: 1.35;
-  color: var(--dark);
+  // --darkgray = #eef4ff en dark mode — blanco suave, alta legibilidad
+  // --dark = #5eb6ff en dark mode — reservado para el título de página (ArticleTitle)
+  color: var(--darkgray);
   margin-top: 0;
   scroll-margin-top: 4rem;
+}
+
+// El título principal de la página (componente ArticleTitle de Quartz)
+// SÍ usa el color de acento — es el único h1 con identidad visual
+h1.article-title,
+.article-title h1,
+header h1,
+.page-header h1 {
+  color: var(--dark);  // azul #5eb6ff en dark mode — correcto para el título
 }
 
 h1 {
@@ -84,6 +95,7 @@ h1 {
   margin-bottom: 1.5rem;
 }
 
+// H2 dentro del artículo — blanco suave con borde separador
 h2 {
   font-size: 1.5rem;
   letter-spacing: -0.02em;
@@ -105,7 +117,8 @@ h4 {
   font-weight: 600;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
-  color: var(--darkgray);
+  // H4 ligeramente menos prominente — usa --gray para jerarquía visual
+  color: var(--gray);
 }
 
 h5, h6 {
@@ -677,31 +690,56 @@ a.footnote-ref {
   padding: 1rem 0.75rem;
   border-top: 1px solid var(--lightgray);
 
-  h3 {
-    font-size: 0.75rem;
+  // El título "NOTAS RECIENTES" — label pequeño, discreto, no compite con el contenido
+  h3,
+  .recent-notes-title {
+    font-size: 0.68rem;
     font-weight: 600;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--gray);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     margin-top: 0;
+    opacity: 0.7;
   }
 
   ul { list-style: none; padding: 0; margin: 0; }
-  li { margin-bottom: 0.5rem; }
 
+  li {
+    margin-bottom: 0.125rem; // Más compacto — la lista puede ser larga
+  }
+
+  // Cada nota reciente — nombre de archivo en peso normal, no bold
   a {
     font-size: 0.8125rem;
-    color: var(--darkgray);
+    font-weight: 400;          // Sin bold — el sidebar no compite con el contenido
+    color: var(--gray);        // Gris — no tan prominente como el contenido central
     display: block;
-    padding: 0.25rem 0.5rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 3px;
-    transition: background-color 0.1s ease;
+    transition: background-color 0.1s ease, color 0.1s ease;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 
     &:hover {
       background-color: var(--lightgray);
+      color: var(--darkgray);
       text-decoration: none;
     }
+  }
+
+  // Fecha bajo el nombre de la nota
+  .recent-notes-date,
+  time {
+    font-size: 0.7rem;
+    color: var(--gray);
+    opacity: 0.6;
+    display: block;
+    padding-left: 0.5rem;
+    margin-bottom: 0.35rem;
+    font-feature-settings: "tnum";
   }
 
   .tags {
@@ -709,10 +747,11 @@ a.footnote-ref {
     flex-wrap: wrap;
     gap: 0.25rem;
     margin-top: 0.25rem;
+    padding-left: 0.5rem;
 
     a.tag-link {
-      font-size: 0.75rem;
-      padding: 1px 0.5rem;
+      font-size: 0.68rem;
+      padding: 1px 0.4rem;
       border-radius: 9999px;
       background-color: var(--lightgray);
       color: var(--gray);
@@ -1079,6 +1118,167 @@ footer.footer {
 // ============================================================
 //  21. ACCESIBILIDAD
 // ============================================================
+
+// ============================================================
+//  FIXES ESPECÍFICOS — Observados en build real
+// ============================================================
+
+// El componente ArticleTitle de Quartz v5 renderiza el H1
+// con la clase .article-title — lo queremos en color acento
+.article-title {
+  color: var(--dark) !important;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+
+// Breadcrumbs — Quartz v5 usa .breadcrumb-element y .breadcrumb-separator
+.breadcrumb-element {
+  font-size: 0.8rem;
+  color: var(--gray);
+
+  a { color: var(--gray); text-decoration: none; &:hover { color: var(--secondary); } }
+}
+
+.breadcrumb-separator {
+  color: var(--lightgray);
+  font-size: 0.8rem;
+  user-select: none;
+}
+
+// ContentMeta — Quartz v5 genera .content-meta con spans internos
+.content-meta {
+  font-size: 0.8rem;
+  color: var(--gray);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--lightgray);
+
+  p { margin: 0; }  // Quartz a veces envuelve el meta en <p>
+
+  span.content-meta-modified-time,
+  span.content-meta-reading-time {
+    white-space: nowrap;
+  }
+}
+
+// Toolbar del sidebar (search + darkmode + reader-mode en group: toolbar)
+// En la imagen aparecen en la parte inferior del sidebar
+.sidebar.left {
+  // Los items del toolbar group al fondo del sidebar
+  .mobile-only,
+  [data-group="toolbar"] {
+    margin-top: auto;
+  }
+}
+
+// El grupo toolbar en el sidebar — search + darkmode inline
+.sidebar-toolbar,
+[data-group="toolbar"] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-top: 1px solid var(--lightgray);
+}
+
+// Darkmode toggle — compacto, sin label visible
+.darkmode {
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.375rem;
+    border-radius: 6px;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--lightgray);
+      color: var(--darkgray);
+    }
+  }
+}
+
+// Reader mode toggle
+.reader-mode {
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.375rem;
+    border-radius: 6px;
+    color: var(--gray);
+    display: flex;
+    align-items: center;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--lightgray);
+      color: var(--darkgray);
+    }
+  }
+}
+
+// Search en el sidebar — Quartz v5 lo renderiza con ID #search-button
+#search-button,
+.search {
+  flex: 1;
+
+  button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.625rem;
+    border-radius: 6px;
+    border: 1px solid var(--lightgray);
+    background-color: var(--light);
+    color: var(--gray);
+    font-size: 0.8rem;
+    font-family: var(--bodyFont);
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+    text-align: left;
+
+    &:hover { border-color: var(--gray); }
+
+    kbd {
+      margin-left: auto;
+      font-size: 0.7rem;
+      font-family: var(--codeFont);
+      opacity: 0.5;
+    }
+  }
+}
+
+// Separador visual en el sidebar entre secciones
+.sidebar.left > * + * {
+  // No añadir borde a cada elemento — solo donde tenga sentido
+}
+
+// Explorer — los ítems de sistema que Quartz genera automáticamente
+// (404, tag-index, folder pages) aparecen en el árbol con el mismo peso
+// que notas reales. Los hacemos más discretos pero sin ocultarlos.
+.explorer-item[data-path="404"],
+.explorer-item[data-path="tags"],
+li[data-path="404"],
+li[data-path="tags"] {
+  a {
+    color: var(--gray);
+    opacity: 0.5;
+    font-size: 0.75rem;
+  }
+}
 
 :focus-visible {
   outline: 2px solid var(--secondary);
