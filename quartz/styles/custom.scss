@@ -1,74 +1,42 @@
 // ============================================================
-//  QUARTZ v5 — CUSTOM.SCSS
-//  Blog Ciberseguridad — Tema Premium
+//  QUARTZ v5 — CUSTOM.SCSS  (Blog Ciberseguridad)
 //
-//  ORDEN DE CASCADA (no cambiar):
-//    1. variables.scss  (tokens)  ← leído por Quartz antes que este
-//    2. base.scss       (reset + tipografía base de Quartz)
-//    3. callouts.scss   (callouts de Obsidian base)
-//    4. syntax.scss     (Shiki)
-//    5. custom.scss     ← ESTE ARCHIVO (overrides finales)
-//
-//  REGLA: Usar variables CSS (--color-*) para todo lo que
-//  depende del modo claro/oscuro. Usar variables SCSS ($*)
-//  solo para valores de layout invariantes.
+//  IMPORTANTE: custom.scss se compila de forma aislada por
+//  esbuild. Las variables $* de variables.scss NO están
+//  disponibles aquí. Usamos valores literales donde antes
+//  usábamos $containerMaxWidth etc., y CSS custom properties
+//  (var(--*)) para todo lo que depende del tema dark/light.
 // ============================================================
 
 // ============================================================
-//  1. CONTAINER & GRID — EL FIX PRINCIPAL DE ANCHO
+//  1. CONTAINER & GRID — FIX PRINCIPAL DE ANCHO
 // ============================================================
-
-// El contenedor raíz del grid en Quartz v5
-// Quartz genera: <div id="quartz-root"> o <body class="page">
-// El grid real está en el <body> o en un wrapper directo.
-// Este override extiende el max-width del contenedor total.
 
 body {
-  max-width: $containerMaxWidth !important;
+  max-width: 1440px !important;
   margin-inline: auto;
-  padding-inline: $space-4;
+  padding-inline: 1rem;
 }
 
-// Grid principal — sobreescribimos el generado por variables.scss
-// Quartz aplica el grid via los mapas $mobileGrid/$tabletGrid/$desktopGrid
-// en base.scss, así que esto actúa como override de especificidad.
-@media #{$desktop} {
-  body {
-    // El columnGap de 32px ya está en $desktopGrid de variables.scss
-    // Este override asegura que el centro no tenga max-width artificialmente corto
-    grid-column-gap: 32px;
-  }
-}
-
-// La columna central — quitamos el max-width heredado de Quartz
-// que la bloqueaba a ~680px
+// La columna central — elimina el max-width heredado que
+// bloqueaba el contenido a ~680px
 .center {
-  // min-width previene que el centro colapse en viewports intermedios
   min-width: 0;
-  // max-width en el centro mismo como safety net para legibilidad
-  // en pantallas ultra-anchas (> 1440px)
-  max-width: $contentMaxWidth;
+  max-width: 1000px;
   width: 100%;
-
-  // Alineamos el contenido al centro cuando el layout no ocupa todo
-  @media #{$desktop} {
-    justify-self: stretch;
-  }
 }
 
-// Sidebar izquierdo — Explorer compactado a 260px
+// Sidebar izquierdo — Explorer compactado
 .sidebar.left {
-  width: $sidePanelWidth;
-  min-width: $sidePanelWidth;
+  width: 260px;
+  min-width: 260px;
 }
 
 // Sidebar derecho — TOC + Backlinks compactados
 .sidebar.right {
-  width: $rightPanelWidth;
+  width: 220px;
   min-width: 0;
 
-  // Si está vacío (Graph deshabilitado, sin TOC en ciertos layouts),
-  // colapsamos la columna visualmente sin romper el grid
   &:empty {
     display: none;
   }
@@ -78,23 +46,17 @@ body {
 //  2. TIPOGRAFÍA GLOBAL
 // ============================================================
 
-// Cuerpo principal
-// Inter a 15px con line-height 1.7 — óptimo para lectura técnica larga
 article,
 .markdown-preview-view {
-  font-size: $fontSize-base;
-  line-height: $lineHeight-normal;
+  font-size: 0.9375rem;
+  line-height: 1.7;
   color: var(--darkgray);
 
-  // Párrafos — espaciado entre párrafos más generoso que el inter-línea
   p {
-    margin-bottom: $space-5;
+    margin-bottom: 1.25rem;
     margin-top: 0;
   }
 
-  // Prevenir líneas de texto demasiado largas en el centro ancho
-  // 75ch ≈ la anchura óptima para lectura de prosa técnica
-  // EXCEPCIÓN: código, tablas e imágenes pueden ser más anchos
   > p,
   > ul,
   > ol,
@@ -104,77 +66,71 @@ article,
 }
 
 // ============================================================
-//  3. HEADINGS — ESCALA TIPOGRÁFICA
+//  3. HEADINGS
 // ============================================================
-
-// Sistema de headings con jerarquía clara y sin "decoración gratis"
-// H2 con borde inferior sutil para separar secciones de writeup
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--headerFont);
-  font-weight: $boldWeight;
-  line-height: $lineHeight-tight;
+  font-weight: 700;
+  line-height: 1.35;
   color: var(--dark);
   margin-top: 0;
-  scroll-margin-top: $space-16; // Para anchor links con header fijo
+  scroll-margin-top: 4rem;
 }
 
 h1 {
-  font-size: $fontSize-3xl;
-  letter-spacing: $tracking-tight;
-  margin-bottom: $space-6;
-  // Sin borde — el H1 es el título de la página, ya tiene peso propio
+  font-size: 1.875rem;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
 }
 
 h2 {
-  font-size: $fontSize-2xl;
-  letter-spacing: $tracking-tight;
-  margin-top: $space-10;
-  margin-bottom: $space-4;
-  padding-bottom: $space-2;
-  // Línea inferior sutil — señal estructural, no decoración
-  // Color: gray del tema (siempre visible en dark y light)
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--lightgray);
 }
 
 h3 {
-  font-size: $fontSize-xl;
-  letter-spacing: $tracking-normal;
-  margin-top: $space-8;
-  margin-bottom: $space-3;
+  font-size: 1.25rem;
+  letter-spacing: 0;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
 }
 
 h4 {
-  font-size: $fontSize-lg;
-  font-weight: $semiBoldWeight;
-  margin-top: $space-6;
-  margin-bottom: $space-2;
-  color: var(--darkgray); // Ligeramente menos prominente que H3
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--darkgray);
 }
 
 h5, h6 {
-  font-size: $fontSize-base;
-  font-weight: $semiBoldWeight;
-  margin-top: $space-4;
-  margin-bottom: $space-2;
-  color: var(--gray); // Mínima jerarquía — raramente usados en writeups
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--gray);
 }
 
-// Heading anchor links (los # que aparecen al hover)
+// Anchor links en headings
 .heading-wrapper {
   position: relative;
 
   a.anchor-link {
     opacity: 0;
     position: absolute;
-    left: -$space-5;
+    left: -1.25rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--gray);
     transition: opacity 0.15s ease;
-    font-weight: $normalWeight;
+    font-weight: 400;
     text-decoration: none;
-    font-size: $fontSize-base;
+    font-size: 0.9375rem;
   }
 
   &:hover a.anchor-link {
@@ -189,7 +145,6 @@ h5, h6 {
 a {
   color: var(--secondary);
   text-decoration: none;
-  // Underline offset — más elegante que el subrayado default pegado al texto
   text-underline-offset: 3px;
 
   &:hover {
@@ -197,7 +152,6 @@ a {
     text-decoration: underline;
   }
 
-  // Links internos de Quartz (wikilinks)
   &.internal {
     color: var(--secondary);
 
@@ -205,63 +159,44 @@ a {
       color: var(--tertiary);
     }
   }
-
-  // Links externos — indicador sutil sin icono ruidoso
-  &.external {
-    color: var(--secondary);
-  }
 }
 
 // ============================================================
-//  5. CÓDIGO — EL ELEMENTO MÁS CRÍTICO EN UN BLOG DE CIBERSEG
+//  5. CÓDIGO
 // ============================================================
 
-// 5a. Código inline  (`comando`, `variable`, `--flag`)
-// Tratamiento: badge sutil, nunca subrayado, JetBrains Mono
+// 5a. Inline code
 code:not(pre > code) {
   font-family: var(--codeFont);
-  font-size: $fontSize-sm;             // Ligeramente más pequeño que el body
-  font-weight: $normalWeight;
-  letter-spacing: $tracking-wide;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   background-color: var(--lightgray);
-  color: var(--dark);                  // Color de acento — distingue el código del texto
-  border-radius: $radius-sm;
+  color: var(--dark);
+  border-radius: 3px;
   padding: 0.1em 0.4em;
   border: 1px solid transparent;
 
-  // En dark mode, el borde sutil da profundidad sin ruido
   .dark & {
     border-color: rgba(255, 255, 255, 0.08);
   }
 }
 
-// 5b. Bloques de código — el contenedor <pre>
-// Shiki ya aplica los colores de tokens, nosotros controlamos
-// el contenedor, la tipografía y el padding.
+// 5b. Bloques de código
 pre {
   font-family: var(--codeFont);
-  font-size: $fontSize-sm;
-  line-height: $lineHeight-snug;
-  border-radius: $radius-md;
-  padding: $space-5 $space-6;
-  overflow-x: auto;                    // Scroll horizontal para código largo
-  margin: $space-6 0;
-  position: relative;                  // Para el badge de lenguaje posicionado
-
-  // Borde sutil que delimita el bloque — más refinado que solo background
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  border-radius: 6px;
+  padding: 1.25rem 1.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  position: relative;
   border: 1px solid var(--lightgray);
 
-  // Scrollbar personalizada en el bloque de código (Chrome/Edge)
-  &::-webkit-scrollbar {
-    height: 4px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: var(--gray);
-    border-radius: $radius-full;
-  }
+  &::-webkit-scrollbar { height: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background-color: var(--gray); border-radius: 9999px; }
 
   > code {
     font-family: inherit;
@@ -269,46 +204,41 @@ pre {
     border: none;
     padding: 0;
     font-size: inherit;
-    letter-spacing: $tracking-wide;
-    color: inherit;                    // Deja que Shiki controle los colores
+    letter-spacing: 0.04em;
+    color: inherit;
   }
 }
 
-// 5c. Badge de lenguaje — aparece en la esquina superior derecha
-// Quartz v5 usa el atributo data-language en <pre>
+// 5c. Badge de lenguaje
 pre[data-language]::before {
   content: attr(data-language);
   position: absolute;
-  top: $space-2;
-  right: $space-3;
+  top: 0.5rem;
+  right: 0.75rem;
   font-family: var(--codeFont);
-  font-size: $fontSize-xs;
-  font-weight: $semiBoldWeight;
-  letter-spacing: $tracking-wide;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--gray);
   user-select: none;
-  // Padding-right extra para que el título no quede pegado al borde
-  padding-right: $space-1;
 }
 
-// 5d. Shiki — líneas resaltadas con // [!code highlight]
-// Quartz v5 + Shiki usa clases .highlighted y .line
+// 5d. Shiki — líneas y diffs
 .shiki {
   .line {
     display: block;
-    padding-inline: $space-6; // Padding lateral dentro del scroll
-    margin-inline: -$space-6; // Compensar el padding del <pre>
+    padding-inline: 1.5rem;
+    margin-inline: -1.5rem;
   }
 
   .highlighted {
     background-color: var(--highlight);
     border-left: 2px solid var(--secondary);
-    margin-left: -$space-6;
-    padding-left: calc(#{$space-6} - 2px); // Compensa el border
+    margin-left: -1.5rem;
+    padding-left: calc(1.5rem - 2px);
   }
 
-  // Diffs — añadir / quitar líneas
   .diff.add {
     background-color: rgba(63, 185, 80, 0.12);
     border-left: 2px solid #3fb950;
@@ -316,8 +246,8 @@ pre[data-language]::before {
     &::before {
       content: "+";
       color: #3fb950;
-      margin-right: $space-2;
-      font-weight: $boldWeight;
+      margin-right: 0.5rem;
+      font-weight: 700;
     }
   }
 
@@ -328,48 +258,35 @@ pre[data-language]::before {
     &::before {
       content: "−";
       color: #f85149;
-      margin-right: $space-2;
-      font-weight: $boldWeight;
+      margin-right: 0.5rem;
+      font-weight: 700;
     }
   }
 }
 
 // ============================================================
 //  6. CALLOUTS DE OBSIDIAN — TODOS LOS TIPOS
-//  Quartz renderiza: <div class="callout" data-callout="tipo">
 // ============================================================
 
-// Base de todos los callouts
 .callout {
-  border-radius: $radius-md;
-  margin: $space-6 0;
+  border-radius: 6px;
+  margin: 1.5rem 0;
   padding: 0;
   overflow: hidden;
-  border: 1px solid transparent; // Borde base — se sobreescribe por tipo
-  font-size: $fontSize-base;
+  border: 1px solid transparent;
+  font-size: 0.9375rem;
 
   .callout-title {
     display: flex;
     align-items: center;
-    gap: $space-2;
-    padding: $space-3 $space-4;
-    font-size: $fontSize-sm;
-    font-weight: $semiBoldWeight;
-    letter-spacing: $tracking-wide;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    border-bottom: 1px solid transparent; // Separador interno
+    border-bottom: 1px solid transparent;
 
-    .callout-icon {
-      width: 1em;
-      height: 1em;
-      flex-shrink: 0;
-    }
-
-    .callout-title-inner {
-      flex: 1;
-    }
-
-    // Botón de collapse (si está habilitado)
     .callout-fold {
       margin-left: auto;
       opacity: 0.6;
@@ -382,85 +299,55 @@ pre[data-language]::before {
   }
 
   .callout-content {
-    padding: $space-4;
-    line-height: $lineHeight-loose;
+    padding: 1rem;
+    line-height: 1.85;
 
-    > *:last-child {
-      margin-bottom: 0;
-    }
+    > *:last-child { margin-bottom: 0; }
 
-    // Código dentro de callouts — hereda el estilo base
-    code:not(pre > code) {
-      font-size: $fontSize-xs;
-    }
+    code:not(pre > code) { font-size: 0.75rem; }
   }
 }
 
-// ------------------------------------------------------------
-//  Mixin para generar callouts consistentemente
-//  Args: $color-hex (sin #), $bg-opacity
-// ------------------------------------------------------------
-
-// NOTE — Azul informativo (el más común)
+// NOTE
 .callout[data-callout="note"] {
   background-color: rgba(59, 130, 246, 0.06);
   border-color: rgba(59, 130, 246, 0.25);
-
-  .callout-title {
-    color: #3b82f6;
-    border-bottom-color: rgba(59, 130, 246, 0.15);
-  }
+  .callout-title { color: #3b82f6; border-bottom-color: rgba(59, 130, 246, 0.15); }
 }
 
-// TIP — Verde azulado
+// TIP
 .callout[data-callout="tip"] {
   background-color: rgba(20, 184, 166, 0.06);
   border-color: rgba(20, 184, 166, 0.25);
-
-  .callout-title {
-    color: #14b8a6;
-    border-bottom-color: rgba(20, 184, 166, 0.15);
-  }
+  .callout-title { color: #14b8a6; border-bottom-color: rgba(20, 184, 166, 0.15); }
 }
 
-// INFO — Cian (variante de note, diferenciable)
+// INFO
 .callout[data-callout="info"] {
   background-color: rgba(6, 182, 212, 0.06);
   border-color: rgba(6, 182, 212, 0.25);
-
-  .callout-title {
-    color: #06b6d4;
-    border-bottom-color: rgba(6, 182, 212, 0.15);
-  }
+  .callout-title { color: #06b6d4; border-bottom-color: rgba(6, 182, 212, 0.15); }
 }
 
-// SUCCESS — Verde
+// SUCCESS / CHECK / DONE
 .callout[data-callout="success"],
 .callout[data-callout="check"],
 .callout[data-callout="done"] {
   background-color: rgba(63, 185, 80, 0.06);
   border-color: rgba(63, 185, 80, 0.25);
-
-  .callout-title {
-    color: #3fb950;
-    border-bottom-color: rgba(63, 185, 80, 0.15);
-  }
+  .callout-title { color: #3fb950; border-bottom-color: rgba(63, 185, 80, 0.15); }
 }
 
-// WARNING — Amarillo ámbar (IoCs, precaución)
+// WARNING / CAUTION / ATTENTION
 .callout[data-callout="warning"],
 .callout[data-callout="caution"],
 .callout[data-callout="attention"] {
   background-color: rgba(210, 153, 34, 0.08);
   border-color: rgba(210, 153, 34, 0.30);
-
-  .callout-title {
-    color: #d29922;
-    border-bottom-color: rgba(210, 153, 34, 0.20);
-  }
+  .callout-title { color: #d29922; border-bottom-color: rgba(210, 153, 34, 0.20); }
 }
 
-// DANGER — Rojo (crítico, malware confirmado, exploit)
+// DANGER / ERROR / FAILURE / FAIL / MISSING
 .callout[data-callout="danger"],
 .callout[data-callout="error"],
 .callout[data-callout="failure"],
@@ -468,148 +355,107 @@ pre[data-language]::before {
 .callout[data-callout="missing"] {
   background-color: rgba(248, 81, 73, 0.07);
   border-color: rgba(248, 81, 73, 0.30);
-
-  .callout-title {
-    color: #f85149;
-    border-bottom-color: rgba(248, 81, 73, 0.18);
-  }
+  .callout-title { color: #f85149; border-bottom-color: rgba(248, 81, 73, 0.18); }
 }
 
-// IMPORTANT — Violeta (hallazgos clave de DFIR)
+// IMPORTANT — hallazgos clave DFIR
 .callout[data-callout="important"] {
   background-color: rgba(163, 113, 247, 0.07);
   border-color: rgba(163, 113, 247, 0.25);
-
-  .callout-title {
-    color: #a371f7;
-    border-bottom-color: rgba(163, 113, 247, 0.15);
-  }
+  .callout-title { color: #a371f7; border-bottom-color: rgba(163, 113, 247, 0.15); }
 }
 
-// BUG — Rojo anaranjado (vulnerabilidades, CVEs)
+// BUG — CVEs, vulnerabilidades
 .callout[data-callout="bug"] {
   background-color: rgba(219, 76, 55, 0.07);
   border-color: rgba(219, 76, 55, 0.28);
-
-  .callout-title {
-    color: #db4c37;
-    border-bottom-color: rgba(219, 76, 55, 0.16);
-  }
+  .callout-title { color: #db4c37; border-bottom-color: rgba(219, 76, 55, 0.16); }
 }
 
-// EXAMPLE — Gris (ejemplos genéricos, referencias)
+// EXAMPLE
 .callout[data-callout="example"] {
   background-color: rgba(141, 153, 174, 0.07);
   border-color: rgba(141, 153, 174, 0.22);
-
-  .callout-title {
-    color: var(--gray);
-    border-bottom-color: rgba(141, 153, 174, 0.14);
-  }
+  .callout-title { color: var(--gray); border-bottom-color: rgba(141, 153, 174, 0.14); }
 }
 
-// QUOTE / CITE — gris muy sutil, diferente a blockquote normal
+// QUOTE / CITE
 .callout[data-callout="quote"],
 .callout[data-callout="cite"] {
   background-color: rgba(141, 153, 174, 0.04);
   border-color: rgba(141, 153, 174, 0.18);
   border-left-width: 3px;
-
-  .callout-title {
-    color: var(--gray);
-    border-bottom-color: rgba(141, 153, 174, 0.10);
-  }
+  .callout-title { color: var(--gray); border-bottom-color: rgba(141, 153, 174, 0.10); }
 }
 
-// ABSTRACT / SUMMARY / TLDR (común en writeups CTF)
+// ABSTRACT / SUMMARY / TLDR
 .callout[data-callout="abstract"],
 .callout[data-callout="summary"],
 .callout[data-callout="tldr"] {
   background-color: rgba(94, 182, 255, 0.06);
   border-color: rgba(94, 182, 255, 0.22);
-
-  .callout-title {
-    color: var(--tertiary);
-    border-bottom-color: rgba(94, 182, 255, 0.13);
-  }
+  .callout-title { color: var(--tertiary); border-bottom-color: rgba(94, 182, 255, 0.13); }
 }
 
-// QUESTION / FAQ / HELP
+// QUESTION / HELP / FAQ
 .callout[data-callout="question"],
 .callout[data-callout="help"],
 .callout[data-callout="faq"] {
   background-color: rgba(255, 166, 0, 0.06);
   border-color: rgba(255, 166, 0, 0.22);
-
-  .callout-title {
-    color: #e3a008;
-    border-bottom-color: rgba(255, 166, 0, 0.13);
-  }
+  .callout-title { color: #e3a008; border-bottom-color: rgba(255, 166, 0, 0.13); }
 }
 
 // ============================================================
-//  7. BLOCKQUOTE (≠ callout — el > de Markdown puro)
+//  7. BLOCKQUOTE (Markdown puro — ≠ callout)
 // ============================================================
 
 blockquote:not(.callout) {
   border-left: 3px solid var(--secondary);
-  margin: $space-6 0;
-  padding: $space-3 $space-5;
+  margin: 1.5rem 0;
+  padding: 0.75rem 1.25rem;
   color: var(--gray);
   font-style: italic;
   background-color: transparent;
 
-  > p {
-    margin: 0;
-  }
+  > p { margin: 0; }
 }
 
 // ============================================================
-//  8. TABLAS — Optimizadas para datos de IOCs, análisis
+//  8. TABLAS
 // ============================================================
 
-// Wrapper para overflow horizontal (tablas anchas de hashes, IPs, etc.)
 .table-container,
 .overflow-auto {
   overflow-x: auto;
-  margin: $space-6 0;
-  border-radius: $radius-md;
+  margin: 1.5rem 0;
+  border-radius: 6px;
   border: 1px solid var(--lightgray);
 
-  // Scrollbar sutil dentro del contenedor de tabla
-  &::-webkit-scrollbar {
-    height: 4px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: var(--gray);
-    border-radius: $radius-full;
-  }
+  &::-webkit-scrollbar { height: 4px; }
+  &::-webkit-scrollbar-thumb { background-color: var(--gray); border-radius: 9999px; }
 
-  table {
-    margin: 0; // El margen lo maneja el wrapper
-    border: none;
-    border-radius: 0;
-  }
+  table { margin: 0; border: none; border-radius: 0; }
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: $fontSize-sm;
-  margin: $space-6 0;
-  border-radius: $radius-md;
-  overflow: hidden; // Para que border-radius funcione con las celdas
+  font-size: 0.8125rem;
+  margin: 1.5rem 0;
+  border-radius: 6px;
+  overflow: hidden;
   border: 1px solid var(--lightgray);
 
   thead {
     background-color: var(--lightgray);
 
     th {
-      padding: $space-2 $space-4;
+      padding: 0.5rem 1rem;
       text-align: left;
-      font-weight: $semiBoldWeight;
-      font-size: $fontSize-xs;
-      letter-spacing: $tracking-wide;
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
       color: var(--gray);
       border-bottom: 1px solid var(--lightgray);
@@ -622,87 +468,74 @@ table {
       border-bottom: 1px solid var(--lightgray);
       transition: background-color 0.1s ease;
 
-      &:last-child {
-        border-bottom: none;
-      }
-
-      // Hover sutil — ayuda a seguir filas en tablas largas de logs
-      &:hover {
-        background-color: var(--highlight);
-      }
+      &:last-child { border-bottom: none; }
+      &:hover { background-color: var(--highlight); }
     }
 
     td {
-      padding: $space-2 $space-4;
+      padding: 0.5rem 1rem;
       vertical-align: top;
-      line-height: $lineHeight-snug;
+      line-height: 1.5;
 
-      // Código dentro de tablas (hashes MD5, IPs, rutas de archivo)
-      code {
-        font-size: $fontSize-xs;
-        word-break: break-all; // Hashes largos se rompen
-      }
+      code { font-size: 0.75rem; word-break: break-all; }
     }
   }
 }
 
 // ============================================================
-//  9. IMÁGENES — Capturas de pantalla y análisis
+//  9. IMÁGENES
 // ============================================================
 
 article img,
 .center img {
   max-width: 100%;
   height: auto;
-  border-radius: $radius-lg;
+  border-radius: 10px;
   border: 1px solid var(--lightgray);
   display: block;
-  margin: $space-6 auto; // Centradas por defecto
-  // Sombra muy sutil — da profundidad a las capturas
+  margin: 1.5rem auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
-// Caption de imagen: texto en cursiva inmediatamente después de img
-// En Obsidian: ![Caption aquí](imagen.png)
+// Caption automático: ![Caption](img.png) → <img><em>Caption</em>
 article img + em,
 .center img + em,
 p > img + em {
   display: block;
   text-align: center;
-  font-size: $fontSize-xs;
+  font-size: 0.75rem;
   color: var(--gray);
-  margin-top: -$space-3;
-  margin-bottom: $space-6;
-  font-style: normal; // Quitamos la cursiva del <em> en este contexto
+  margin-top: -0.75rem;
+  margin-bottom: 1.5rem;
+  font-style: normal;
 }
 
 // ============================================================
-//  10. LISTAS — Incluyendo task lists de Obsidian
+//  10. LISTAS
 // ============================================================
 
 ul, ol {
-  padding-left: $space-6;
-  margin-bottom: $space-5;
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
 
   li {
-    margin-bottom: $space-2;
-    line-height: $lineHeight-normal;
+    margin-bottom: 0.5rem;
+    line-height: 1.7;
   }
 
-  // Listas anidadas
   ul, ol {
-    margin-top: $space-2;
-    margin-bottom: $space-2;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 }
 
-// Task lists — checkboxes de Obsidian - [ ] y - [x]
+// Task lists — - [ ] y - [x]
 .task-list-item {
   list-style: none;
-  margin-left: -$space-4;
+  margin-left: -1rem;
   display: flex;
   align-items: flex-start;
-  gap: $space-2;
+  gap: 0.5rem;
 
   input[type="checkbox"] {
     flex-shrink: 0;
@@ -715,136 +548,104 @@ ul, ol {
 
   &[data-task="x"],
   &[data-task="X"] {
-    > span,
-    > p {
-      color: var(--gray);
-    }
+    > span, > p { color: var(--gray); }
   }
 }
 
 // ============================================================
-//  11. FOOTNOTES — Notas al pie en writeups
+//  11. FOOTNOTES
 // ============================================================
 
-// Referencia inline [^1]
 sup a[href^="#fn"],
 a.footnote-ref {
   color: var(--secondary);
-  font-size: $fontSize-xs;
-  font-weight: $semiBoldWeight;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-decoration: none;
   padding: 0 2px;
 
-  &:hover {
-    color: var(--tertiary);
-  }
+  &:hover { color: var(--tertiary); }
 }
 
-// Sección de notas al pie
 .footnotes {
-  margin-top: $space-12;
-  padding-top: $space-6;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
   border-top: 1px solid var(--lightgray);
-  font-size: $fontSize-sm;
+  font-size: 0.8125rem;
   color: var(--gray);
 
-  ol {
-    padding-left: $space-5;
-  }
+  ol { padding-left: 1.25rem; }
 
   li {
-    margin-bottom: $space-3;
-    line-height: $lineHeight-snug;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
   }
 
-  // Link de retorno ↩
   a.footnote-backref {
     color: var(--secondary);
     text-decoration: none;
-    margin-left: $space-1;
+    margin-left: 0.25rem;
 
-    &:hover {
-      color: var(--tertiary);
-    }
+    &:hover { color: var(--tertiary); }
   }
 }
 
 // ============================================================
-//  12. SIDEBAR IZQUIERDO — Explorer + Componentes
+//  12. SIDEBAR IZQUIERDO
 // ============================================================
 
 .sidebar.left {
-  // Padding interno del sidebar
-  padding: $space-4 0;
-  // Separador derecho sutil — delimita el sidebar sin shadow agresiva
+  padding: 1rem 0;
   border-right: 1px solid var(--lightgray);
-  // El sidebar se queda fijo mientras scrolleas el contenido
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
 
-  // Scrollbar invisible en el sidebar (aparece al hover)
-  &::-webkit-scrollbar {
-    width: 3px;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: transparent;
-  }
-  &:hover::-webkit-scrollbar-thumb {
-    background-color: var(--lightgray);
-  }
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-thumb { background-color: transparent; }
+  &:hover::-webkit-scrollbar-thumb { background-color: var(--lightgray); }
 }
 
-// Título del sitio en el sidebar
 .page-title,
 .site-title {
-  font-size: $fontSize-md;
-  font-weight: $boldWeight;
-  letter-spacing: $tracking-tight;
-  padding: 0 $space-4;
-  margin-bottom: $space-4;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  padding: 0 1rem;
+  margin-bottom: 1rem;
   color: var(--dark);
 
   a {
     color: inherit;
     text-decoration: none;
 
-    &:hover {
-      color: var(--secondary);
-    }
+    &:hover { color: var(--secondary); }
   }
 }
 
-// Explorer — árbol de archivos
 .explorer {
-  padding: 0 $space-3;
+  padding: 0 0.75rem;
 
-  // Título de sección "Explorer"
   .explorer-title {
-    font-size: $fontSize-xs;
-    font-weight: $semiBoldWeight;
-    letter-spacing: $tracking-wide;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--gray);
-    padding: 0 $space-2;
-    margin-bottom: $space-2;
-  }
-
-  // Items del árbol
-  li.explorer-item {
-    list-style: none;
+    padding: 0 0.5rem;
+    margin-bottom: 0.5rem;
   }
 
   a.internal,
   .folder-title {
     display: flex;
     align-items: center;
-    gap: $space-2;
-    padding: $space-1 $space-2;
-    border-radius: $radius-sm;
-    font-size: $fontSize-sm;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.8125rem;
     color: var(--darkgray);
     text-decoration: none;
     transition: background-color 0.1s ease, color 0.1s ease;
@@ -857,54 +658,44 @@ a.footnote-ref {
       color: var(--dark);
     }
 
-    // Página activa
     &.active,
     &[aria-current="page"] {
       background-color: var(--highlight);
       color: var(--secondary);
-      font-weight: $semiBoldWeight;
+      font-weight: 600;
     }
   }
 
-  // Indentación del árbol anidado
   ul.explorer-ul {
-    padding-left: $space-4;
+    padding-left: 1rem;
     border-left: 1px solid var(--lightgray);
-    margin-left: $space-3;
+    margin-left: 0.75rem;
   }
 }
 
-// Notas recientes en el sidebar
 .recent-notes {
-  padding: $space-4 $space-3;
+  padding: 1rem 0.75rem;
   border-top: 1px solid var(--lightgray);
 
   h3 {
-    font-size: $fontSize-xs;
-    font-weight: $semiBoldWeight;
-    letter-spacing: $tracking-wide;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--gray);
-    margin-bottom: $space-3;
+    margin-bottom: 0.75rem;
     margin-top: 0;
   }
 
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  li {
-    margin-bottom: $space-2;
-  }
+  ul { list-style: none; padding: 0; margin: 0; }
+  li { margin-bottom: 0.5rem; }
 
   a {
-    font-size: $fontSize-sm;
+    font-size: 0.8125rem;
     color: var(--darkgray);
     display: block;
-    padding: $space-1 $space-2;
-    border-radius: $radius-sm;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
     transition: background-color 0.1s ease;
 
     &:hover {
@@ -913,19 +704,19 @@ a.footnote-ref {
     }
   }
 
-  // Tags en las notas recientes
   .tags {
     display: flex;
     flex-wrap: wrap;
-    gap: $space-1;
-    margin-top: $space-1;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
 
     a.tag-link {
-      font-size: $fontSize-xs;
-      padding: 1px $space-2;
-      border-radius: $radius-full;
+      font-size: 0.75rem;
+      padding: 1px 0.5rem;
+      border-radius: 9999px;
       background-color: var(--lightgray);
       color: var(--gray);
+      text-decoration: none;
 
       &:hover {
         background-color: var(--highlight);
@@ -940,61 +731,50 @@ a.footnote-ref {
 // ============================================================
 
 .sidebar.right {
-  padding: $space-4 0 $space-4 $space-4;
+  padding: 1rem 0 1rem 1rem;
   position: sticky;
   top: 0;
   height: 100vh;
   overflow-y: auto;
 
-  // Scrollbar igual que sidebar izquierdo
   &::-webkit-scrollbar { width: 3px; }
   &::-webkit-scrollbar-thumb { background-color: transparent; }
   &:hover::-webkit-scrollbar-thumb { background-color: var(--lightgray); }
 }
 
-// Table of Contents
 .toc {
-  margin-bottom: $space-6;
+  margin-bottom: 1.5rem;
 
-  // Header "En esta página"
   .toc-header,
   > p,
   > h3 {
-    font-size: $fontSize-xs;
-    font-weight: $semiBoldWeight;
-    letter-spacing: $tracking-wide;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--gray);
-    margin-bottom: $space-3;
+    margin-bottom: 0.75rem;
   }
 
-  ol, ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  li {
-    margin-bottom: $space-1;
-  }
+  ol, ul { list-style: none; padding: 0; margin: 0; }
+  li { margin-bottom: 0.25rem; }
 
   a {
-    font-size: $fontSize-sm;
+    font-size: 0.8125rem;
     color: var(--gray);
     text-decoration: none;
     display: block;
-    padding: 2px $space-2;
-    border-radius: $radius-sm;
+    padding: 2px 0.5rem;
+    border-radius: 3px;
     border-left: 2px solid transparent;
     transition: all 0.1s ease;
-    line-height: $lineHeight-snug;
+    line-height: 1.5;
 
     &:hover {
       color: var(--dark);
       background-color: var(--lightgray);
     }
 
-    // TOC item activo (scroll spy)
     &.in-view,
     &.active {
       color: var(--secondary);
@@ -1003,135 +783,93 @@ a.footnote-ref {
     }
   }
 
-  // Anidamiento del TOC — H3 dentro de H2
   ol ol,
   ul ul {
-    padding-left: $space-4;
-    margin-top: $space-1;
+    padding-left: 1rem;
+    margin-top: 0.25rem;
   }
 }
 
-// Backlinks
 .backlinks {
   border-top: 1px solid var(--lightgray);
-  padding-top: $space-4;
-  margin-top: $space-2;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
 
   h3 {
-    font-size: $fontSize-xs;
-    font-weight: $semiBoldWeight;
-    letter-spacing: $tracking-wide;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--gray);
-    margin-bottom: $space-3;
+    margin-bottom: 0.75rem;
     margin-top: 0;
   }
 
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
+  ul { list-style: none; padding: 0; margin: 0; }
 
   a {
-    font-size: $fontSize-sm;
+    font-size: 0.8125rem;
     color: var(--darkgray);
     display: block;
-    padding: $space-1 $space-2;
-    border-radius: $radius-sm;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
     transition: background-color 0.1s ease;
+    text-decoration: none;
 
-    &:hover {
-      background-color: var(--lightgray);
-      text-decoration: none;
-    }
+    &:hover { background-color: var(--lightgray); }
   }
 }
 
 // ============================================================
-//  14. HEADER DE PÁGINA — Título, metadata, breadcrumbs
+//  14. HEADER — Breadcrumbs, meta, tags
 // ============================================================
 
-.page-header {
-  margin-bottom: $space-8;
-}
+.page-header { margin-bottom: 2rem; }
 
-// Breadcrumbs — navegación de contexto
 .breadcrumb-container {
   display: flex;
   align-items: center;
-  gap: $space-2;
-  margin-bottom: $space-4;
-  font-size: $fontSize-xs;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.75rem;
 
-  a {
-    color: var(--gray);
-    text-decoration: none;
-
-    &:hover {
-      color: var(--secondary);
-    }
-  }
-
-  .breadcrumb-separator {
-    color: var(--lightgray);
-    user-select: none;
-  }
-
-  .breadcrumb-current {
-    color: var(--darkgray);
-    font-weight: $semiBoldWeight;
-  }
+  a { color: var(--gray); text-decoration: none; &:hover { color: var(--secondary); } }
+  .breadcrumb-separator { color: var(--lightgray); user-select: none; }
+  .breadcrumb-current { color: var(--darkgray); font-weight: 600; }
 }
 
-// ContentMeta — fecha y tiempo de lectura
 .content-meta {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: $space-4;
-  font-size: $fontSize-xs;
+  gap: 1rem;
+  font-size: 0.75rem;
   color: var(--gray);
-  margin-bottom: $space-5;
-  padding-bottom: $space-4;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
   border-bottom: 1px solid var(--lightgray);
 
-  // Separador visual entre items de metadata
-  > *:not(:last-child)::after {
-    content: "·";
-    margin-left: $space-4;
-    color: var(--lightgray);
-  }
-
-  time {
-    font-feature-settings: "tnum"; // Números tabulares para fechas
-  }
+  time { font-feature-settings: "tnum"; }
 }
 
-// NoteProperties — propiedades del frontmatter de Obsidian
 .note-properties {
-  margin-bottom: $space-5;
+  margin-bottom: 1.25rem;
 
   .properties-table {
-    font-size: $fontSize-xs;
+    font-size: 0.75rem;
     border-collapse: collapse;
     width: auto;
     border: none;
 
-    tbody tr {
-      border: none;
-      &:hover {
-        background: none;
-      }
-    }
+    tbody tr { border: none; &:hover { background: none; } }
 
     td {
-      padding: $space-1 $space-3 $space-1 0;
+      padding: 0.25rem 0.75rem 0.25rem 0;
       border: none;
 
       &:first-child {
         color: var(--gray);
-        font-weight: $semiBoldWeight;
+        font-weight: 600;
         white-space: nowrap;
         min-width: 100px;
       }
@@ -1139,23 +877,22 @@ a.footnote-ref {
   }
 }
 
-// Tags de la página
 .tags-container,
 .page-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: $space-2;
-  margin-top: $space-4;
+  gap: 0.5rem;
+  margin-top: 1rem;
 
   a.tag-link,
   .tag {
     display: inline-flex;
     align-items: center;
-    font-size: $fontSize-xs;
-    font-weight: $semiBoldWeight;
-    letter-spacing: $tracking-wide;
-    padding: 2px $space-3;
-    border-radius: $radius-full;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 2px 0.75rem;
+    border-radius: 9999px;
     border: 1px solid var(--lightgray);
     color: var(--gray);
     text-decoration: none;
@@ -1170,116 +907,91 @@ a.footnote-ref {
 }
 
 // ============================================================
-//  15. FOOTER — Giscus + Footer del sitio
+//  15. FOOTER + GISCUS
 // ============================================================
 
 .page-footer {
-  margin-top: $space-10;
-  padding-top: $space-6;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
   border-top: 1px solid var(--lightgray);
 }
 
-// Footer del sitio (el componente Footer de Quartz)
 footer.footer {
-  padding: $space-8 0 $space-6;
+  padding: 2rem 0 1.5rem;
   text-align: center;
-  font-size: $fontSize-xs;
+  font-size: 0.75rem;
   color: var(--gray);
   border-top: 1px solid var(--lightgray);
 
-  a {
-    color: var(--gray);
-
-    &:hover {
-      color: var(--secondary);
-    }
-  }
+  a { color: var(--gray); &:hover { color: var(--secondary); } }
 }
 
-// Giscus — contenedor de comentarios
 .giscus {
-  margin-top: $space-8;
+  margin-top: 2rem;
 
-  // Aseguramos que el iframe de Giscus ocupe el ancho disponible
-  iframe {
-    width: 100% !important;
-  }
+  iframe { width: 100% !important; }
 }
 
 // ============================================================
-//  16. SEARCH — Barra de búsqueda
+//  16. SEARCH
 // ============================================================
 
 #search-bar,
 .search-bar {
   display: flex;
   align-items: center;
-  gap: $space-2;
-  padding: $space-2 $space-3;
-  border-radius: $radius-md;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
   border: 1px solid var(--lightgray);
   background-color: var(--light);
   color: var(--gray);
-  font-size: $fontSize-sm;
+  font-size: 0.8125rem;
   cursor: pointer;
   transition: border-color 0.15s ease;
   width: 100%;
 
-  &:hover {
-    border-color: var(--gray);
-  }
+  &:hover { border-color: var(--gray); }
 
-  .search-hint {
-    margin-left: auto;
-    font-size: $fontSize-xs;
-    opacity: 0.5;
-  }
+  .search-hint { margin-left: auto; font-size: 0.75rem; opacity: 0.5; }
 }
 
-// Modal de resultados de búsqueda
-#search-container,
-.search-container {
-  .search-results {
-    .result-card {
-      padding: $space-3 $space-4;
-      border-radius: $radius-md;
-      border: 1px solid transparent;
-      margin-bottom: $space-2;
-      cursor: pointer;
-      transition: background-color 0.1s ease;
+#search-container .result-card,
+.search-container .result-card {
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.1s ease;
 
-      &:hover,
-      &.active {
-        background-color: var(--lightgray);
-        border-color: var(--lightgray);
-      }
+  &:hover,
+  &.active {
+    background-color: var(--lightgray);
+    border-color: var(--lightgray);
+  }
 
-      .result-title {
-        font-size: $fontSize-base;
-        font-weight: $semiBoldWeight;
-        color: var(--darkgray);
-        margin-bottom: $space-1;
-      }
+  .result-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--darkgray);
+    margin-bottom: 0.25rem;
+  }
 
-      .result-path {
-        font-size: $fontSize-xs;
-        color: var(--gray);
-        font-family: var(--codeFont);
-      }
-    }
+  .result-path {
+    font-size: 0.75rem;
+    color: var(--gray);
+    font-family: var(--codeFont);
   }
 }
 
 // ============================================================
-//  17. MOBILE — Overrides responsivos
+//  17. MOBILE
 // ============================================================
 
-@media #{$mobile} {
-  body {
-    padding-inline: $space-4;
-  }
+@media (max-width: 800px) {
+  body { padding-inline: 1rem; }
 
-  // En mobile, el sidebar ocupa el ancho completo
   .sidebar.left,
   .sidebar.right {
     width: 100%;
@@ -1287,141 +999,99 @@ footer.footer {
     position: static;
     border-right: none;
     border-bottom: 1px solid var(--lightgray);
-    padding: $space-4;
+    padding: 1rem;
   }
 
-  // Heading más compactos en mobile
-  h1 { font-size: $fontSize-2xl; }
-  h2 { font-size: $fontSize-xl; }
-  h3 { font-size: $fontSize-lg; }
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.125rem; }
 
-  // Sin max-width en prose — en mobile usamos el ancho completo
   article > p,
   article > ul,
   article > ol,
-  article > blockquote {
-    max-width: 100%;
-  }
+  article > blockquote { max-width: 100%; }
 
-  // Código con font más pequeño en mobile
-  pre {
-    font-size: 0.75rem;
-    padding: $space-4;
-  }
+  pre { font-size: 0.75rem; padding: 1rem; }
 
-  // Tablas scrolleables en mobile
-  table {
-    font-size: $fontSize-xs;
-  }
-
-  // Imágenes sin borde en mobile para más espacio
-  article img {
-    border-radius: $radius-md;
-  }
+  article img { border-radius: 6px; }
 }
 
 // ============================================================
-//  18. TABLET — Grid de 2 columnas
+//  18. TABLET
 // ============================================================
 
-@media #{$tablet} {
-  // En tablet, el sidebar derecho va debajo del contenido
-  // (ya lo maneja el $tabletGrid en variables.scss)
+@media (min-width: 800px) and (max-width: 1200px) {
   .sidebar.right {
     height: auto;
     position: static;
     border-top: 1px solid var(--lightgray);
-    padding: $space-4;
+    padding: 1rem;
     overflow: visible;
   }
 
-  .center {
-    max-width: 100%; // En tablet el centro usa todo el espacio disponible
-  }
+  .center { max-width: 100%; }
 }
 
 // ============================================================
-//  19. DARK MODE — Ajustes específicos de contraste
+//  19. DARK MODE — ajustes de contraste
 // ============================================================
-
-// Los colores del tema se inyectan via CSS variables por Quartz
-// según el quartz.config.yaml. Este bloque añade ajustes
-// que no se pueden lograr solo con las variables de color.
 
 :root[saved-theme="dark"],
 .dark {
-  // Código inline — borde más visible en dark
   code:not(pre > code) {
     border-color: rgba(255, 255, 255, 0.1);
   }
 
-  // Imágenes — borde más sutil en dark (el border es muy visible)
   article img {
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
   }
 
-  // Tablas — header con mejor contraste
-  thead {
-    background-color: rgba(255, 255, 255, 0.04);
-  }
+  thead { background-color: rgba(255, 255, 255, 0.04); }
 
-  // Pre/code — fondo levemente diferenciado del background de página
   pre {
-    background-color: var(--lightgray); // Usa el lightgray del dark mode config
+    background-color: var(--lightgray);
     border-color: rgba(255, 255, 255, 0.06);
   }
 }
 
 // ============================================================
-//  20. POPOVER PREVIEWS — Links con preview hover
+//  20. POPOVERS
 // ============================================================
 
 .popover {
   border: 1px solid var(--lightgray);
-  border-radius: $radius-lg;
+  border-radius: 10px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.20);
   overflow: hidden;
 
   .popover-inner {
-    padding: $space-4;
-    font-size: $fontSize-sm;
+    padding: 1rem;
+    font-size: 0.8125rem;
     max-height: 300px;
     overflow: hidden;
 
-    h1, h2, h3 {
-      font-size: $fontSize-base;
-      margin-top: 0;
-      margin-bottom: $space-2;
-    }
-
-    p {
-      color: var(--gray);
-      margin-bottom: $space-2;
-      line-height: $lineHeight-snug;
-    }
+    h1, h2, h3 { font-size: 0.9375rem; margin-top: 0; margin-bottom: 0.5rem; }
+    p { color: var(--gray); margin-bottom: 0.5rem; line-height: 1.5; }
   }
 }
 
 // ============================================================
-//  21. FOCUS VISIBLE — Accesibilidad de teclado
+//  21. ACCESIBILIDAD
 // ============================================================
 
-// Quartz usa navegación por teclado — respetamos el focus ring
 :focus-visible {
   outline: 2px solid var(--secondary);
   outline-offset: 2px;
-  border-radius: $radius-sm;
+  border-radius: 3px;
 }
 
 // ============================================================
-//  22. REDUCED MOTION — Respeto al sistema operativo
+//  22. REDUCED MOTION
 // ============================================================
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -1429,7 +1099,7 @@ footer.footer {
 }
 
 // ============================================================
-//  23. PRINT — Estilos de impresión para writeups
+//  23. PRINT
 // ============================================================
 
 @media print {
@@ -1439,18 +1109,14 @@ footer.footer {
   .darkmode,
   .giscus,
   .backlinks,
-  .toc {
-    display: none !important;
-  }
+  .toc { display: none !important; }
 
   .center {
     max-width: 100%;
     grid-column: 1 / -1;
   }
 
-  body {
-    font-size: 11pt;
-  }
+  body { font-size: 11pt; }
 
   a[href]::after {
     content: " (" attr(href) ")";
@@ -1458,8 +1124,5 @@ footer.footer {
     color: #666;
   }
 
-  pre {
-    white-space: pre-wrap;
-    word-break: break-all;
-  }
+  pre { white-space: pre-wrap; word-break: break-all; }
 }
