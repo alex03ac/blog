@@ -1,171 +1,204 @@
 // ============================================================
-//  QUARTZ v5 — CUSTOM.SCSS  (Blog Ciberseguridad)
+//  QUARTZ v5 — CUSTOM.SCSS
+//  Blog Ciberseguridad — Tema Premium
 //
-//  SELECTORES VERIFICADOS contra el HTML real (DevTools).
+//  ARQUITECTURA CONFIRMADA (renderPage.tsx + DevTools):
 //
-//  Estructura real del DOM:
-//    div#quartz-root.page
-//      div#quartz-body          ← el grid vive aquí
+//  body[data-slug][data-basepath]
+//    div#quartz-root.page[data-frame="default"]
+//      div#quartz-body                    ← GRID está aquí
 //        div.left.sidebar
 //          h2.page-title
 //          div.recent-notes
-//          div.flex-component   ← toolbar: search + darkmode
-//          div[class*=explorer]
+//          div.mobile-only
+//          div.flex-component             ← toolbar row
+//          div[data-*].explorer-...
 //        div.center
 //          div.page-header
 //            div.popover-hint
 //              nav.breadcrumb-container
+//                div.breadcrumb-element
 //              h1.article-title
 //              p.content-meta
 //          article.popover-hint
 //            div.markdown-preview-view.markdown-rendered
+//              h2, h3, h4, ...           ← headings SIN clase extra
+//              p, ul, ol, blockquote...
+//          hr
 //          div.page-footer
-//        div.right.sidebar      ← vacío
+//        div.right.sidebar
+//      footer
 //
-//  PROBLEMA RAÍZ CONFIRMADO (Styles panel):
-//    Layer quartz-base aplica:
+//  PROBLEMA DE ESPECIFICIDAD CONFIRMADO:
+//    base.scss genera en "Layer quartz-base":
 //      h1,h2,h3,h4,h5,h6,thead { color: var(--dark) }
-//    Este layer tiene mayor prioridad que nuestras reglas simples.
-//    Solución: especificidad mayor con #quartz-body o !important
-//    solo donde sea estrictamente necesario.
+//    Este layer tiene prioridad sobre selectores simples.
+//    Solución: prefijo .markdown-rendered para headings de contenido.
 // ============================================================
 
 
 // ============================================================
-//  1. GRID — el grid está en #quartz-body, no en body
+//  SECCIÓN 1 — TIPOGRAFÍA BASE
+//  Inter + JetBrains Mono ya configurados en quartz.config.yaml
 // ============================================================
 
-// El contenedor raíz del grid es #quartz-body
-// Quartz v5 aplica grid-template-areas en este elemento.
-// Extendemos el max-width del page wrapper.
-#quartz-root.page {
-  max-width: 1440px;
-  margin-inline: auto;
+// Reset tipográfico del body — aplica antes del grid
+body {
+  font-family: var(--bodyFont);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
-// El grid de columnas real
-#quartz-body {
-  // Sobreescribimos el grid-template-columns con los valores correctos
-  // El default de Quartz usa $sidePanelWidth para ambas columnas (2×320px)
-  // Nosotros: izquierda 260px | centro libre | derecha 220px
-  grid-template-columns: 260px 1fr 220px !important;
-  column-gap: 2rem !important;
-  max-width: 1440px;
-}
+// El artículo — zona de lectura principal
+.markdown-rendered {
+  font-size: 0.9375rem;      // 15px — más denso que 16px, ideal para documentación
+  line-height: 1.75;
+  color: var(--darkgray);
 
-// Centro — sin max-width artificial
-.center {
-  min-width: 0;
-  // No ponemos max-width aquí — que use el 1fr completo
-  width: 100%;
-}
+  // Párrafos
+  p {
+    margin-top: 0;
+    margin-bottom: 1.15rem;
+  }
 
-// Sidebar izquierdo
-.left.sidebar {
-  width: 260px;
-}
+  // Listas
+  ul, ol {
+    padding-left: 1.5rem;
+    margin-bottom: 1.15rem;
 
-// Sidebar derecho — si está vacío, colapsamos
-.right.sidebar {
-  width: 220px;
-  min-width: 0;
+    li {
+      margin-bottom: 0.3rem;
+      line-height: 1.7;
+    }
 
-  &:empty {
-    display: none;
-    width: 0;
+    // Listas anidadas
+    ul, ol {
+      margin-top: 0.3rem;
+      margin-bottom: 0.3rem;
+    }
+  }
+
+  // Strong y em
+  strong { font-weight: 700; color: var(--darkgray); }
+  em     { font-style: italic; color: var(--darkgray); }
+
+  // HR
+  hr {
+    border: none;
+    border-top: 1px solid var(--lightgray);
+    margin: 2.5rem 0;
   }
 }
 
 
 // ============================================================
-//  2. HEADINGS — Fix de especificidad
-//
-//  El layer quartz-base tiene: h1,h2,h3,h4,h5,h6 { color: var(--dark) }
-//  Para ganarle usamos #quartz-body como prefijo.
+//  SECCIÓN 2 — HEADINGS
+//  Prefijo .markdown-rendered para ganar especificidad
+//  sobre el "Layer quartz-base" de Quartz
 // ============================================================
 
-// Headings DENTRO del contenido del artículo — blanco, no azul
-#quartz-body .center h2,
-#quartz-body .center h3,
-#quartz-body .center h4,
-#quartz-body .center h5,
-#quartz-body .center h6 {
-  color: var(--darkgray) !important;  // #eef4ff en dark mode — alta legibilidad
+// H1 del artículo — el componente ArticleTitle genera h1.article-title
+// fuera del .markdown-rendered, así que lo manejamos aparte
+h1.article-title {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--darkgray) !important;   // Blanco suave — no azul
+  margin-top: 0 !important;
+  margin-bottom: 0.5rem !important;
+  border-bottom: none !important;
+}
+
+// H2–H6 DENTRO del contenido markdown
+// El !important es necesario porque quartz-base layer tiene:
+// h1,h2,h3,h4,h5,h6 { color: var(--dark) }
+.markdown-rendered h2,
+.markdown-rendered h3,
+.markdown-rendered h4,
+.markdown-rendered h5,
+.markdown-rendered h6 {
   font-family: var(--headerFont);
   font-weight: 700;
-  line-height: 1.35;
+  line-height: 1.3;
+  color: var(--darkgray) !important;
+  scroll-margin-top: 5rem;
   margin-top: 0;
-  scroll-margin-top: 4rem;
+  border-bottom: none;
 }
 
-// H1 de título de página — SÍ en azul (color de marca)
-h1.article-title {
-  color: var(--dark) !important;   // #5eb6ff en dark mode
-  font-size: 2rem;
+// H2 — sección principal, con separador
+.markdown-rendered h2 {
+  font-size: 1.35rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  margin-bottom: 0.5rem;
-}
-
-// Escala de tamaños
-#quartz-body .center h2 {
-  font-size: 1.4rem;
-  letter-spacing: -0.01em;
-  margin-top: 2.5rem;
+  margin-top: 2.75rem;
   margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--lightgray);
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--lightgray) !important;
+  letter-spacing: -0.01em;
 }
 
-#quartz-body .center h3 {
-  font-size: 1.15rem;
+// H3 — subsección
+.markdown-rendered h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
   margin-top: 2rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65rem;
+  color: var(--darkgray) !important;
 }
 
-#quartz-body .center h4 {
-  font-size: 1rem;
+// H4 — sub-subsección, ligeramente atenuado
+.markdown-rendered h4 {
+  font-size: 0.975rem;
   font-weight: 600;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
   color: var(--gray) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.78rem;
 }
 
-#quartz-body .center h5,
-#quartz-body .center h6 {
-  font-size: 0.9rem;
+// H5, H6 — raramente usados, muy discretos
+.markdown-rendered h5,
+.markdown-rendered h6 {
+  font-size: 0.85rem;
   font-weight: 600;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.4rem;
   color: var(--gray) !important;
 }
 
+// Heading wrapper — el enlace # que aparece al hover
+.heading-wrapper {
+  position: relative;
 
-// ============================================================
-//  3. TIPOGRAFÍA DEL ARTÍCULO
-// ============================================================
-
-.markdown-preview-view.markdown-rendered {
-  font-size: 0.9375rem;
-  line-height: 1.72;
-  color: var(--darkgray);
-
-  p {
-    margin-bottom: 1.25rem;
-    margin-top: 0;
+  .anchor-link {
+    opacity: 0;
+    margin-left: 0.4rem;
+    color: var(--gray);
+    font-weight: 400;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+    font-size: 0.9em;
+    vertical-align: middle;
   }
+
+  &:hover .anchor-link { opacity: 0.6; }
 }
 
 
 // ============================================================
-//  4. LINKS
+//  SECCIÓN 3 — LINKS
 // ============================================================
 
-a {
+.markdown-rendered a,
+a.internal {
   color: var(--secondary);
   text-decoration: none;
   text-underline-offset: 3px;
+  transition: color 0.1s ease;
 
   &:hover {
     color: var(--tertiary);
@@ -173,82 +206,84 @@ a {
   }
 }
 
-// Links externos con icono — sin outline al click
+// Icono de link externo — discreto
 .external-icon {
-  display: inline;
-  vertical-align: middle;
+  opacity: 0.45;
   margin-left: 2px;
-  opacity: 0.5;
+  vertical-align: middle;
+  display: inline;
 }
 
 
 // ============================================================
-//  5. CÓDIGO
+//  SECCIÓN 4 — CÓDIGO
+//  JetBrains Mono configurado como var(--codeFont)
 // ============================================================
 
-// Inline code — el selector exacto que no choca con pre > code
-:not(pre) > code {
+// Inline code — :not(pre > code) para no afectar bloques
+.markdown-rendered :not(pre) > code {
   font-family: var(--codeFont);
   font-size: 0.82em;
   font-weight: 400;
   letter-spacing: 0.02em;
   background-color: var(--lightgray);
   color: var(--dark);
-  border-radius: 3px;
-  padding: 0.12em 0.4em;
-  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px;
+  padding: 0.13em 0.45em;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  white-space: nowrap;
 }
 
-// Bloques de código
+// Bloque de código — contenedor pre
 pre {
+  position: relative;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  border: 1px solid var(--lightgray);
+  overflow: hidden;    // Importante: contiene el Shiki output
+}
+
+// El <code> dentro de pre — Shiki inyecta estilos inline de color
+pre > code {
+  display: block;
   font-family: var(--codeFont) !important;
   font-size: 0.8125rem;
-  line-height: 1.6;
-  border-radius: 6px;
+  line-height: 1.65;
   padding: 1.1rem 1.25rem;
   overflow-x: auto;
-  margin: 1.5rem 0;
-  position: relative;
-  border: 1px solid var(--lightgray);
+  letter-spacing: 0.01em;
 
+  // Scrollbar sutil
   &::-webkit-scrollbar { height: 4px; }
   &::-webkit-scrollbar-track { background: transparent; }
   &::-webkit-scrollbar-thumb {
-    background-color: var(--gray);
+    background: var(--gray);
     border-radius: 9999px;
-  }
-
-  > code {
-    font-family: inherit !important;
-    background: none;
-    border: none;
-    padding: 0;
-    font-size: inherit;
-    letter-spacing: 0.02em;
-    color: inherit;
   }
 }
 
-// Badge de lenguaje — esquina superior derecha del bloque
+// Badge del lenguaje en la esquina superior derecha
 pre[data-language]::before {
   content: attr(data-language);
   position: absolute;
   top: 0.5rem;
   right: 0.75rem;
   font-family: var(--codeFont);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--gray);
+  opacity: 0.6;
+  pointer-events: none;
   user-select: none;
 }
 
-// Shiki — líneas resaltadas
+// Shiki — líneas resaltadas y diffs
 .shiki {
-  .line { display: block; }
-
+  // Línea resaltada con // [!code highlight]
   .highlighted {
+    display: block;
     background-color: var(--highlight);
     border-left: 2px solid var(--secondary);
     margin-left: -1.25rem;
@@ -257,165 +292,229 @@ pre[data-language]::before {
     padding-right: 1.25rem;
   }
 
+  // Diff add
   .diff.add {
-    background-color: rgba(63, 185, 80, 0.12);
+    display: block;
+    background-color: rgba(63, 185, 80, 0.10);
     border-left: 2px solid #3fb950;
     margin-left: -1.25rem;
     padding-left: calc(1.25rem - 2px);
+    margin-right: -1.25rem;
+    padding-right: 1.25rem;
   }
 
+  // Diff remove
   .diff.remove {
-    background-color: rgba(248, 81, 73, 0.12);
+    display: block;
+    background-color: rgba(248, 81, 73, 0.10);
     border-left: 2px solid #f85149;
     margin-left: -1.25rem;
     padding-left: calc(1.25rem - 2px);
+    margin-right: -1.25rem;
+    padding-right: 1.25rem;
+    opacity: 0.7;
+  }
+
+  // Número de línea — si Shiki los genera
+  .line-number {
+    display: inline-block;
+    width: 2rem;
+    margin-right: 1rem;
+    color: var(--gray);
+    opacity: 0.4;
+    text-align: right;
+    user-select: none;
   }
 }
 
 
 // ============================================================
-//  6. CALLOUTS DE OBSIDIAN
+//  SECCIÓN 5 — CALLOUTS DE OBSIDIAN
+//  Quartz renderiza: <div class="callout" data-callout="tipo">
+//    <div class="callout-title"><...icon><span class="callout-title-inner">
+//    <div class="callout-content">
 // ============================================================
 
 .callout {
   border-radius: 6px;
-  margin: 1.5rem 0;
-  padding: 0;
+  margin: 1.25rem 0;
   overflow: hidden;
   border: 1px solid transparent;
+  border-left-width: 3px;
 
   .callout-title {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.6rem 1rem;
-    font-size: 0.78rem;
+    padding: 0.55rem 0.875rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    border-bottom: 1px solid transparent;
 
-    .callout-fold { margin-left: auto; opacity: 0.6; }
+    // Icono SVG del callout
+    svg {
+      width: 1em;
+      height: 1em;
+      flex-shrink: 0;
+    }
+
+    .callout-fold {
+      margin-left: auto;
+      opacity: 0.5;
+      transition: transform 0.2s ease;
+    }
   }
+
+  &.is-collapsed .callout-fold { transform: rotate(-90deg); }
 
   .callout-content {
-    padding: 0.875rem 1rem;
-    line-height: 1.75;
-    font-size: 0.9rem;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.88rem;
+    line-height: 1.7;
 
     > *:last-child { margin-bottom: 0; }
+
+    // Código inline dentro de callouts
+    :not(pre) > code { font-size: 0.78em; }
   }
 }
 
-// Tipos de callout
+// Definición de cada tipo de callout
+// Semántica de color: azul=info, verde=ok, amarillo=alerta, rojo=peligro, violeta=importante
+
 .callout[data-callout="note"] {
-  background: rgba(59,130,246,0.06); border-color: rgba(59,130,246,0.25);
-  .callout-title { color: #3b82f6; border-bottom-color: rgba(59,130,246,0.15); }
-}
-.callout[data-callout="tip"] {
-  background: rgba(20,184,166,0.06); border-color: rgba(20,184,166,0.25);
-  .callout-title { color: #14b8a6; border-bottom-color: rgba(20,184,166,0.15); }
-}
-.callout[data-callout="info"] {
-  background: rgba(6,182,212,0.06); border-color: rgba(6,182,212,0.25);
-  .callout-title { color: #06b6d4; border-bottom-color: rgba(6,182,212,0.15); }
-}
-.callout[data-callout="success"],
-.callout[data-callout="check"],
-.callout[data-callout="done"] {
-  background: rgba(63,185,80,0.06); border-color: rgba(63,185,80,0.25);
-  .callout-title { color: #3fb950; border-bottom-color: rgba(63,185,80,0.15); }
-}
-.callout[data-callout="warning"],
-.callout[data-callout="caution"],
-.callout[data-callout="attention"] {
-  background: rgba(210,153,34,0.08); border-color: rgba(210,153,34,0.30);
-  .callout-title { color: #d29922; border-bottom-color: rgba(210,153,34,0.20); }
-}
-.callout[data-callout="danger"],
-.callout[data-callout="error"],
-.callout[data-callout="failure"],
-.callout[data-callout="fail"],
-.callout[data-callout="missing"] {
-  background: rgba(248,81,73,0.07); border-color: rgba(248,81,73,0.30);
-  .callout-title { color: #f85149; border-bottom-color: rgba(248,81,73,0.18); }
-}
-.callout[data-callout="important"] {
-  background: rgba(163,113,247,0.07); border-color: rgba(163,113,247,0.25);
-  .callout-title { color: #a371f7; border-bottom-color: rgba(163,113,247,0.15); }
-}
-.callout[data-callout="bug"] {
-  background: rgba(219,76,55,0.07); border-color: rgba(219,76,55,0.28);
-  .callout-title { color: #db4c37; border-bottom-color: rgba(219,76,55,0.16); }
-}
-.callout[data-callout="example"] {
-  background: rgba(141,153,174,0.07); border-color: rgba(141,153,174,0.22);
-  .callout-title { color: var(--gray); border-bottom-color: rgba(141,153,174,0.14); }
-}
-.callout[data-callout="quote"],
-.callout[data-callout="cite"] {
-  background: rgba(141,153,174,0.04); border-color: rgba(141,153,174,0.18);
-  border-left-width: 3px;
-  .callout-title { color: var(--gray); border-bottom-color: rgba(141,153,174,0.10); }
+  background: rgba(59, 130, 246, 0.05);
+  border-color: rgba(59, 130, 246, 0.35);
+  .callout-title { color: #58a6ff; }
 }
 .callout[data-callout="abstract"],
 .callout[data-callout="summary"],
 .callout[data-callout="tldr"] {
-  background: rgba(94,182,255,0.06); border-color: rgba(94,182,255,0.22);
-  .callout-title { color: var(--tertiary); border-bottom-color: rgba(94,182,255,0.13); }
+  background: rgba(56, 189, 248, 0.05);
+  border-color: rgba(56, 189, 248, 0.30);
+  .callout-title { color: #38bdf8; }
+}
+.callout[data-callout="info"] {
+  background: rgba(6, 182, 212, 0.05);
+  border-color: rgba(6, 182, 212, 0.30);
+  .callout-title { color: #22d3ee; }
+}
+.callout[data-callout="tip"],
+.callout[data-callout="hint"] {
+  background: rgba(20, 184, 166, 0.05);
+  border-color: rgba(20, 184, 166, 0.30);
+  .callout-title { color: #2dd4bf; }
+}
+.callout[data-callout="success"],
+.callout[data-callout="check"],
+.callout[data-callout="done"] {
+  background: rgba(63, 185, 80, 0.05);
+  border-color: rgba(63, 185, 80, 0.30);
+  .callout-title { color: #3fb950; }
 }
 .callout[data-callout="question"],
 .callout[data-callout="help"],
 .callout[data-callout="faq"] {
-  background: rgba(255,166,0,0.06); border-color: rgba(255,166,0,0.22);
-  .callout-title { color: #e3a008; border-bottom-color: rgba(255,166,0,0.13); }
+  background: rgba(250, 176, 5, 0.05);
+  border-color: rgba(250, 176, 5, 0.28);
+  .callout-title { color: #e3b341; }
+}
+.callout[data-callout="warning"],
+.callout[data-callout="caution"],
+.callout[data-callout="attention"] {
+  background: rgba(210, 153, 34, 0.07);
+  border-color: rgba(210, 153, 34, 0.40);
+  .callout-title { color: #d29922; }
+}
+.callout[data-callout="failure"],
+.callout[data-callout="fail"],
+.callout[data-callout="missing"] {
+  background: rgba(248, 81, 73, 0.05);
+  border-color: rgba(248, 81, 73, 0.30);
+  .callout-title { color: #f85149; }
+}
+.callout[data-callout="danger"],
+.callout[data-callout="error"] {
+  background: rgba(248, 81, 73, 0.08);
+  border-color: rgba(248, 81, 73, 0.50);
+  .callout-title { color: #ff7b72; }
+}
+.callout[data-callout="bug"] {
+  background: rgba(219, 76, 55, 0.06);
+  border-color: rgba(219, 76, 55, 0.35);
+  .callout-title { color: #ffa198; }
+}
+.callout[data-callout="example"] {
+  background: rgba(130, 80, 255, 0.05);
+  border-color: rgba(130, 80, 255, 0.28);
+  .callout-title { color: #bc8cff; }
+}
+.callout[data-callout="important"] {
+  background: rgba(163, 113, 247, 0.07);
+  border-color: rgba(163, 113, 247, 0.45);
+  .callout-title { color: #d2a8ff; }
+}
+.callout[data-callout="quote"],
+.callout[data-callout="cite"] {
+  background: transparent;
+  border-color: var(--gray);
+  border-left-width: 3px;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 0;
+  .callout-title { color: var(--gray); letter-spacing: 0; }
 }
 
 
 // ============================================================
-//  7. BLOCKQUOTE
+//  SECCIÓN 6 — BLOCKQUOTE (Markdown puro > texto)
+//  Distinto de callout — más minimalista
 // ============================================================
 
-blockquote:not(.callout) {
-  border-left: 3px solid var(--secondary);
-  margin: 1.5rem 0;
-  padding: 0.75rem 1.25rem;
+.markdown-rendered blockquote:not(.callout) {
+  margin: 1.25rem 0;
+  padding: 0.1rem 1rem;
+  border-left: 3px solid var(--lightgray);
   color: var(--gray);
-  font-style: italic;
+  font-style: normal;
   background: transparent;
 
-  > p { margin: 0; }
+  p { margin-bottom: 0.5rem; }
+  p:last-child { margin-bottom: 0; }
 }
 
 
 // ============================================================
-//  8. TABLAS
+//  SECCIÓN 7 — TABLAS
+//  Optimizadas para IoCs, hashes, logs, comparativas
 // ============================================================
 
-.table-container { overflow-x: auto; margin: 1.5rem 0; }
-
-table {
+.markdown-rendered table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.8125rem;
   margin: 1.5rem 0;
+  border: 1px solid var(--lightgray);
   border-radius: 6px;
   overflow: hidden;
-  border: 1px solid var(--lightgray);
+  display: block;           // Permite overflow-x en mobile
+  overflow-x: auto;
 
-  thead {
+  thead tr {
+    background: var(--lightgray);
+
     th {
-      padding: 0.5rem 1rem;
+      padding: 0.45rem 0.875rem;
       text-align: left;
+      font-size: 0.7rem;
       font-weight: 600;
-      font-size: 0.72rem;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
-      // thead también toma color: var(--dark) del quartz-base layer
-      color: var(--gray) !important;
-      background-color: var(--lightgray);
-      border-bottom: 1px solid var(--lightgray);
+      color: var(--gray) !important;   // Gana sobre quartz-base
       white-space: nowrap;
+      border-bottom: 1px solid var(--lightgray);
     }
   }
 
@@ -425,14 +524,16 @@ table {
       transition: background-color 0.1s ease;
 
       &:last-child { border-bottom: none; }
-      &:hover { background-color: var(--highlight); }
+      &:hover { background: var(--highlight); }
     }
 
     td {
-      padding: 0.5rem 1rem;
+      padding: 0.45rem 0.875rem;
       vertical-align: top;
       line-height: 1.5;
+      color: var(--darkgray);
 
+      // Hashes, IPs y rutas dentro de tablas
       code { font-size: 0.75rem; word-break: break-all; }
     }
   }
@@ -440,588 +541,166 @@ table {
 
 
 // ============================================================
-//  9. IMÁGENES
+//  SECCIÓN 8 — IMÁGENES Y CAPTURAS DE PANTALLA
 // ============================================================
 
 .markdown-rendered img {
   max-width: 100%;
   height: auto;
-  border-radius: 8px;
-  border: 1px solid var(--lightgray);
   display: block;
   margin: 1.5rem auto;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  border-radius: 6px;
+  border: 1px solid var(--lightgray);
 }
 
-// Caption: ![caption](img) → img seguida de em
+// Caption automático: en Obsidian "![[img|caption]]" o "![caption](img)"
+// Quartz convierte el alt text en <figcaption> o en el <em> siguiente
 .markdown-rendered img + em,
-.markdown-rendered p > img + em {
+.markdown-rendered figure figcaption {
   display: block;
   text-align: center;
   font-size: 0.75rem;
+  font-style: normal;
   color: var(--gray);
   margin-top: -0.75rem;
-  margin-bottom: 1.5rem;
-  font-style: normal;
+  margin-bottom: 1.25rem;
 }
 
 
 // ============================================================
-//  10. LISTAS
+//  SECCIÓN 9 — TASK LISTS (- [ ] y - [x])
 // ============================================================
 
-.markdown-rendered {
-  ul, ol {
-    padding-left: 1.5rem;
-    margin-bottom: 1.25rem;
+.markdown-rendered .task-list-item {
+  list-style: none;
+  margin-left: -1.5rem;
+  padding-left: 1.75rem;
+  position: relative;
 
-    li {
-      margin-bottom: 0.35rem;
-      line-height: 1.7;
-    }
-
-    ul, ol { margin-top: 0.35rem; margin-bottom: 0.35rem; }
-  }
-
-  // Task lists
-  .task-list-item {
-    list-style: none;
-    margin-left: -1rem;
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
-
-    input[type="checkbox"] {
-      flex-shrink: 0;
-      margin-top: 0.25em;
-      accent-color: var(--secondary);
-      cursor: default;
-    }
+  input[type="checkbox"] {
+    position: absolute;
+    left: 0;
+    top: 0.25em;
+    accent-color: var(--secondary);
+    cursor: default;
+    width: 0.9em;
+    height: 0.9em;
   }
 }
 
 
 // ============================================================
-//  11. FOOTNOTES
+//  SECCIÓN 10 — FOOTNOTES
 // ============================================================
 
-sup a[href^="#fn"] {
+// Referencia inline [^1]
+.markdown-rendered sup a {
   color: var(--secondary);
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
   text-decoration: none;
-  padding: 0 2px;
 
   &:hover { color: var(--tertiary); }
 }
 
+// Sección de notas al pie
 .footnotes {
   margin-top: 3rem;
-  padding-top: 1.5rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--lightgray);
   font-size: 0.8rem;
   color: var(--gray);
 
-  li { margin-bottom: 0.5rem; line-height: 1.6; }
+  li { margin-bottom: 0.4rem; line-height: 1.6; }
 
   a.footnote-backref {
     color: var(--secondary);
     text-decoration: none;
+    margin-left: 0.25rem;
     &:hover { color: var(--tertiary); }
   }
 }
 
 
 // ============================================================
-//  12. SIDEBAR IZQUIERDO
-//  Estructura real: div.left.sidebar
-//    h2.page-title
-//    div.recent-notes
-//    div.mobile-only
-//    div.flex-component  (toolbar)
-//    div[explorer]
+//  SECCIÓN 11 — PAGE HEADER
+//  nav.breadcrumb-container + h1.article-title + p.content-meta
 // ============================================================
 
-.left.sidebar {
-  padding: 1.25rem 0;
-  border-right: 1px solid var(--lightgray);
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
-
-  &::-webkit-scrollbar { width: 3px; }
-  &::-webkit-scrollbar-thumb { background-color: transparent; }
-  &:hover::-webkit-scrollbar-thumb { background-color: var(--lightgray); }
+.page-header {
+  padding-bottom: 0;
+  margin-bottom: 2rem;
 }
 
-// h2.page-title — título del sitio "Ciberseguridad"
-// El layer quartz-base le pone color: var(--dark) — lo mantenemos
-h2.page-title {
-  font-size: 1rem !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.02em;
-  padding: 0 1rem;
-  margin-bottom: 1rem;
-  margin-top: 0;
-  border-bottom: none !important;  // Quitamos el border-bottom que hereda de h2
-  color: var(--dark) !important;   // Azul — es el logo/título del sitio
-
-  a {
-    color: inherit;
-    text-decoration: none;
-    &:hover { opacity: 0.8; }
-  }
-}
-
-// Notas Recientes
-div.recent-notes {
-  padding: 0 0.75rem;
-  margin-bottom: 0.5rem;
-
-  // El h3 "Notas Recientes" que genera el componente
-  h3 {
-    font-size: 0.68rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: var(--gray) !important;
-    margin-bottom: 0.4rem;
-    margin-top: 0.75rem;
-    opacity: 0.65;
-    border-bottom: none !important;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  li { margin-bottom: 0.1rem; }
-
-  // Cada nota reciente
-  a {
-    font-size: 0.8rem;
-    font-weight: 400;
-    color: var(--gray);
-    display: block;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    text-decoration: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    transition: background-color 0.1s ease, color 0.1s ease;
-
-    &:hover {
-      background-color: var(--lightgray);
-      color: var(--darkgray);
-      text-decoration: none;
-    }
-  }
-
-  // Fecha
-  time, .recent-notes-date {
-    display: block;
-    font-size: 0.68rem;
-    color: var(--gray);
-    opacity: 0.5;
-    padding-left: 0.5rem;
-    margin-bottom: 0.2rem;
-    font-feature-settings: "tnum";
-  }
-
-  // Tags en notas recientes
-  .tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.2rem;
-    padding-left: 0.5rem;
-    margin-top: 0.15rem;
-
-    a {
-      font-size: 0.65rem;
-      padding: 1px 0.4rem;
-      border-radius: 9999px;
-      background: var(--lightgray);
-      color: var(--gray);
-      white-space: nowrap;
-      overflow: visible;
-
-      &:hover {
-        background: var(--highlight);
-        color: var(--secondary);
-      }
-    }
-  }
-}
-
-// Toolbar: div.flex-component con search + darkmode + reader-mode
-// Quartz lo coloca al fondo del sidebar con group: toolbar
-div.flex-component {
-  margin-top: auto;   // Empuja el toolbar al fondo del sidebar
-  padding: 0.75rem;
-  border-top: 1px solid var(--lightgray);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: nowrap;
-}
-
-// Search button
-#search-button,
-.search button {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.375rem 0.625rem;
-  border-radius: 6px;
-  border: 1px solid var(--lightgray);
-  background: var(--light);
-  color: var(--gray);
-  font-size: 0.8rem;
-  font-family: var(--bodyFont);
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-  text-align: left;
-  white-space: nowrap;
-
-  &:hover { border-color: var(--gray); }
-
-  kbd {
-    margin-left: auto;
-    font-family: var(--codeFont);
-    font-size: 0.65rem;
-    opacity: 0.45;
-  }
-}
-
-// Darkmode toggle
-.darkmode button,
-.reader-mode button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.375rem;
-  border-radius: 6px;
-  color: var(--gray);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.15s ease;
-  flex-shrink: 0;
-
-  &:hover {
-    background-color: var(--lightgray);
-    color: var(--darkgray);
-  }
-}
-
-// Explorer — el árbol de archivos
-// Clase real: div con data-behavior="link" y nav-files-container
-div[class*="explorer"] {
-  padding: 0 0.5rem;
-  overflow-y: auto;
-  flex: 1;
-}
-
-// El h2 "Explorer" que Quartz genera dentro del componente
-button.explorer-title,
-.explorer-title {
-  font-size: 0.68rem !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--gray) !important;
-  padding: 0.5rem 0.5rem 0.3rem;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  background: none;
-  border: none;
-  width: 100%;
-  cursor: pointer;
-  opacity: 0.65;
-  border-bottom: none !important;
-
-  // La flecha de collapse
-  &::after { margin-left: auto; }
-}
-
-// Items del Explorer — links a las notas
-.explorer-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.explorer-li {
-  margin-bottom: 0.05rem;
-}
-
-// Folders y archivos en el Explorer
-.folder-title,
-.folder-container {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  color: var(--darkgray);
-  cursor: pointer;
-  transition: background-color 0.1s ease;
-  white-space: nowrap;
-
-  &:hover { background-color: var(--lightgray); }
-}
-
-.explorer-ul .explorer-ul {
-  padding-left: 0.75rem;
-  border-left: 1px solid var(--lightgray);
-  margin-left: 0.6rem;
-}
-
-// Links a notas dentro del Explorer
-.explorer-ul a {
-  display: block;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  color: var(--gray);
-  text-decoration: none;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: background-color 0.1s ease, color 0.1s ease;
-
-  &:hover {
-    background-color: var(--lightgray);
-    color: var(--darkgray);
-    text-decoration: none;
-  }
-
-  &[aria-current="page"],
-  &.active {
-    background-color: var(--highlight);
-    color: var(--secondary);
-    font-weight: 600;
-  }
-}
-
-
-// ============================================================
-//  13. SIDEBAR DERECHO — TOC + Backlinks
-// ============================================================
-
-.right.sidebar {
-  padding: 1.25rem 0 1.25rem 1.25rem;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-
-  &::-webkit-scrollbar { width: 3px; }
-  &::-webkit-scrollbar-thumb { background-color: transparent; }
-  &:hover::-webkit-scrollbar-thumb { background-color: var(--lightgray); }
-}
-
-// TOC
-.toc {
-  h3, .toc-title {
-    font-size: 0.68rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: var(--gray) !important;
-    margin-bottom: 0.5rem;
-    margin-top: 0;
-    opacity: 0.65;
-    border-bottom: none !important;
-  }
-
-  ol, ul { list-style: none; padding: 0; margin: 0; }
-  li { margin-bottom: 0.15rem; }
-
-  a {
-    font-size: 0.8rem;
-    color: var(--gray);
-    text-decoration: none;
-    display: block;
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
-    border-left: 2px solid transparent;
-    transition: all 0.1s ease;
-    line-height: 1.45;
-
-    &:hover { color: var(--dark); background-color: var(--lightgray); }
-
-    &.in-view,
-    &.active {
-      color: var(--secondary);
-      border-left-color: var(--secondary);
-      background-color: var(--highlight);
-    }
-  }
-
-  ol ol, ul ul { padding-left: 0.875rem; margin-top: 0.1rem; }
-}
-
-// Backlinks
-.backlinks {
-  border-top: 1px solid var(--lightgray);
-  padding-top: 1rem;
-  margin-top: 1rem;
-
-  h3 {
-    font-size: 0.68rem !important;
-    font-weight: 600 !important;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    color: var(--gray) !important;
-    margin-bottom: 0.5rem;
-    margin-top: 0;
-    opacity: 0.65;
-    border-bottom: none !important;
-  }
-
-  ul { list-style: none; padding: 0; margin: 0; }
-
-  a {
-    font-size: 0.8rem;
-    color: var(--gray);
-    display: block;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-    text-decoration: none;
-    transition: background-color 0.1s ease;
-
-    &:hover { background-color: var(--lightgray); color: var(--darkgray); }
-  }
-}
-
-
-// ============================================================
-//  14. PAGE HEADER — Breadcrumbs + ArticleTitle + ContentMeta
-// ============================================================
-
-.page-header { margin-bottom: 2rem; }
-
-// Breadcrumbs — clase real: nav.breadcrumb-container
-//   con div.breadcrumb-element dentro
+// Breadcrumbs
 nav.breadcrumb-container {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.15rem;
-  margin-bottom: 1rem;
-  font-size: 0.78rem;
+  gap: 0;
+  margin-bottom: 0.875rem;
+  font-size: 0.775rem;
   color: var(--gray);
 
-  a { color: var(--gray); text-decoration: none; &:hover { color: var(--secondary); } }
-
-  // Quartz genera los separadores como texto dentro de breadcrumb-element
   .breadcrumb-element {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.15rem;
-    color: var(--gray);
 
-    a { color: var(--gray); }
+    a {
+      color: var(--gray);
+      text-decoration: none;
+      padding: 0.1rem 0.2rem;
+      border-radius: 3px;
 
-    // El último elemento (página actual) va más brillante
-    &:last-child a,
-    &:last-child { color: var(--darkgray); font-weight: 500; }
+      &:hover {
+        color: var(--secondary);
+        text-decoration: none;
+      }
+    }
+
+    // Último elemento = página actual
+    &:last-child a { color: var(--darkgray); font-weight: 500; }
+
+    // El separador ">" entre elementos
+    &:not(:last-child)::after {
+      content: "/";
+      color: var(--lightgray);
+      margin: 0 0.3rem;
+      font-size: 0.85em;
+    }
   }
 }
 
-// ContentMeta — p.content-meta con show-comma="true"
-// Contiene <time> y <span>
+// ContentMeta: p.content-meta con fecha y tiempo de lectura
 p.content-meta {
-  font-size: 0.8rem;
+  font-size: 0.775rem;
   color: var(--gray);
-  margin-bottom: 0;
-  padding-bottom: 1rem;
+  margin: 0.35rem 0 1.25rem;
+  padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--lightgray);
   display: flex;
   align-items: center;
+  gap: 0.5rem 1rem;
   flex-wrap: wrap;
-  gap: 0.3rem 0.75rem;
-  margin-top: 0.35rem;
 
   time { font-feature-settings: "tnum"; }
-  span { white-space: nowrap; }
 }
 
-
-// ============================================================
-//  15. FOOTER
-// ============================================================
-
-.page-footer {
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--lightgray);
+// Tags de la página
+.page-listing .tags,
+.content-meta .tags,
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
 }
 
-footer {
-  padding: 2rem 0 1.5rem;
-  font-size: 0.78rem;
-  color: var(--gray);
-  border-top: 1px solid var(--lightgray);
-
-  a { color: var(--gray); &:hover { color: var(--secondary); } }
-}
-
-.giscus {
-  margin-top: 2rem;
-  iframe { width: 100% !important; }
-}
-
-
-// ============================================================
-//  16. POPOVER PREVIEWS
-// ============================================================
-
-.popover {
-  border: 1px solid var(--lightgray);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.22);
-  overflow: hidden;
-
-  .popover-inner {
-    padding: 1rem;
-    font-size: 0.8rem;
-    max-height: 280px;
-    overflow: hidden;
-
-    h1, h2, h3 {
-      font-size: 0.9rem;
-      margin-top: 0;
-      margin-bottom: 0.4rem;
-      color: var(--darkgray) !important;
-    }
-
-    p { color: var(--gray); margin-bottom: 0.4rem; line-height: 1.5; }
-  }
-}
-
-
-// ============================================================
-//  17. TAGS
-// ============================================================
-
-.tags-container a,
 a.tag-link,
 .tag {
   display: inline-flex;
   align-items: center;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   padding: 2px 0.6rem;
@@ -1034,69 +713,639 @@ a.tag-link,
   &:hover {
     border-color: var(--secondary);
     color: var(--secondary);
-    background-color: var(--highlight);
+    background: var(--highlight);
     text-decoration: none;
   }
 }
 
 
 // ============================================================
-//  18. MOBILE  (< 800px)
+//  SECCIÓN 12 — SIDEBAR IZQUIERDO
+//  Estructura: div.left.sidebar
 // ============================================================
 
-@media (max-width: 800px) {
-  #quartz-root.page { padding-inline: 0; }
+.left.sidebar {
+  padding: 1.25rem 0 0;
+  border-right: 1px solid var(--lightgray);
+  position: sticky;
+  top: 0;
+  height: 100dvh;          // dvh para móvil con barras del browser
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 
-  .left.sidebar,
-  .right.sidebar {
-    width: 100% !important;
-    height: auto;
-    position: static;
-    border-right: none;
-    overflow: visible;
+  // Scrollbar invisible — aparece al hover
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover {
+    scrollbar-color: var(--lightgray) transparent;
   }
 
-  #quartz-body {
-    grid-template-columns: 1fr !important;
+  &::-webkit-scrollbar { width: 3px; }
+  &::-webkit-scrollbar-thumb { background: transparent; }
+  &:hover::-webkit-scrollbar-thumb { background: var(--lightgray); }
+}
+
+// Título del sitio "Ciberseguridad" — h2.page-title
+h2.page-title {
+  font-size: 0.9rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+  color: var(--dark) !important;
+  padding: 0 1rem 1rem;
+  margin: 0 !important;
+  border-bottom: 1px solid var(--lightgray) !important;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    &:hover { opacity: 0.75; }
+  }
+}
+
+// Notas recientes
+div.recent-notes {
+  padding: 0.875rem 0.875rem 0.5rem;
+  border-bottom: 1px solid var(--lightgray);
+
+  // Título "Notas Recientes"
+  & > h3,
+  & > .recent-notes-title {
+    font-size: 0.65rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray) !important;
+    margin: 0 0 0.5rem !important;
+    opacity: 0.6;
+    border-bottom: none !important;
   }
 
-  #quartz-body .center h2 { font-size: 1.2rem; }
-  #quartz-body .center h3 { font-size: 1.05rem; }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
 
-  pre { font-size: 0.75rem; padding: 0.875rem; }
+  li { margin: 0; }
 
-  div.flex-component { margin-top: 0; }
+  // Link a cada nota reciente
+  a.internal {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--gray);
+    text-decoration: none;
+    padding: 0.18rem 0.4rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background 0.1s ease, color 0.1s ease;
+
+    &:hover {
+      background: var(--lightgray);
+      color: var(--darkgray);
+      text-decoration: none;
+    }
+  }
+
+  // Fecha bajo el nombre
+  time {
+    display: block;
+    font-size: 0.67rem;
+    color: var(--gray);
+    opacity: 0.45;
+    padding: 0 0.4rem 0.2rem;
+    font-feature-settings: "tnum";
+  }
+
+  // Tags dentro de recent-notes
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem;
+    padding: 0.1rem 0.4rem 0.3rem;
+
+    a {
+      font-size: 0.63rem;
+      font-weight: 600;
+      padding: 1px 0.45rem;
+      border-radius: 9999px;
+      background: var(--lightgray);
+      color: var(--gray);
+      white-space: nowrap;
+      text-decoration: none;
+
+      &:hover {
+        background: var(--highlight);
+        color: var(--secondary);
+      }
+    }
+  }
+}
+
+// Toolbar — div.flex-component (search + darkmode + reader-mode)
+div.flex-component {
+  margin-top: auto;
+  padding: 0.625rem 0.75rem;
+  border-top: 1px solid var(--lightgray);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+// Search dentro del toolbar
+.search {
+  flex: 1;
+  min-width: 0;
+
+  button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 5px;
+    border: 1px solid var(--lightgray);
+    background: var(--light);
+    color: var(--gray);
+    font-size: 0.775rem;
+    font-family: var(--bodyFont);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s ease;
+
+    &:hover { border-color: var(--gray); }
+
+    // Atajo de teclado ⌘K
+    .search-hotkey,
+    kbd {
+      margin-left: auto;
+      font-family: var(--codeFont);
+      font-size: 0.62rem;
+      opacity: 0.4;
+      flex-shrink: 0;
+    }
+  }
+}
+
+// Darkmode + Reader mode — botones icono compactos
+.darkmode,
+.reader-mode {
+  flex-shrink: 0;
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    background: none;
+    color: var(--gray);
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+
+    &:hover {
+      background: var(--lightgray);
+      color: var(--darkgray);
+    }
+
+    svg { width: 1rem; height: 1rem; }
+  }
+}
+
+// Explorer — árbol de archivos
+// Quartz v5 genera un div con data-* y nav-files-container interno
+.explorer {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5rem 0.5rem 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover { scrollbar-color: var(--lightgray) transparent; }
+
+  // Botón título "Explorer" que genera el componente
+  button.explorer-title {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: 100%;
+    padding: 0.2rem 0.4rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.65rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray) !important;
+    opacity: 0.6;
+    margin-bottom: 0.3rem;
+
+    // Flecha collapse
+    svg {
+      width: 0.7rem;
+      height: 0.7rem;
+      margin-left: auto;
+      transition: transform 0.2s ease;
+    }
+  }
+
+  // UL raíz del árbol
+  ul.explorer-ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  // UL anidado — indentación visual
+  ul.explorer-ul ul.explorer-ul {
+    padding-left: 0.875rem;
+    border-left: 1px solid var(--lightgray);
+    margin-left: 0.5rem;
+  }
+
+  // Item del árbol — li
+  li.explorer-li {
+    margin: 0;
+    list-style: none;
+  }
+
+  // Carpeta — botón con flecha
+  button.folder-button,
+  .folder-title {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+    padding: 0.22rem 0.4rem;
+    border-radius: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--darkgray);
+    text-align: left;
+    transition: background 0.1s ease;
+    white-space: nowrap;
+
+    &:hover { background: var(--lightgray); }
+
+    svg {
+      width: 0.75rem;
+      height: 0.75rem;
+      flex-shrink: 0;
+      opacity: 0.5;
+      transition: transform 0.15s ease;
+    }
+  }
+
+  // Archivo — link a la nota
+  a.internal {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--gray);
+    text-decoration: none;
+    padding: 0.22rem 0.4rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: background 0.1s ease, color 0.1s ease;
+
+    &:hover {
+      background: var(--lightgray);
+      color: var(--darkgray);
+    }
+
+    // Nota activa — la que estamos leyendo
+    &[aria-current="page"],
+    &.active {
+      background: var(--highlight);
+      color: var(--secondary);
+      font-weight: 500;
+    }
+  }
 }
 
 
 // ============================================================
-//  19. DARK MODE — ajustes que no se logran solo con variables
+//  SECCIÓN 13 — SIDEBAR DERECHO (TOC + Backlinks)
+// ============================================================
+
+.right.sidebar {
+  padding: 1.25rem 0 1.25rem 1.5rem;
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover { scrollbar-color: var(--lightgray) transparent; }
+  &:empty { display: none; width: 0; }
+}
+
+// TOC
+.toc {
+  margin-bottom: 1.5rem;
+
+  // Título "En esta página"
+  & > h3,
+  .toc-content > h3 {
+    font-size: 0.65rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray) !important;
+    margin: 0 0 0.5rem !important;
+    opacity: 0.6;
+    border-bottom: none !important;
+  }
+
+  // Lista de headings
+  ol, ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li { margin: 0; }
+
+  // Anidamiento — H3 dentro de H2
+  ol ol, ul ul {
+    padding-left: 0.875rem;
+    margin-top: 0.1rem;
+  }
+
+  // Link del TOC
+  a {
+    display: block;
+    font-size: 0.775rem;
+    color: var(--gray);
+    text-decoration: none;
+    padding: 0.18rem 0.5rem;
+    border-radius: 4px;
+    border-left: 2px solid transparent;
+    line-height: 1.4;
+    transition: color 0.1s ease, background 0.1s ease;
+
+    &:hover {
+      color: var(--darkgray);
+      background: var(--lightgray);
+      text-decoration: none;
+    }
+
+    // Heading visible en pantalla (scroll spy)
+    &.in-view,
+    &.active {
+      color: var(--secondary);
+      border-left-color: var(--secondary);
+      background: var(--highlight);
+    }
+  }
+}
+
+// Backlinks
+.backlinks {
+  border-top: 1px solid var(--lightgray);
+  padding-top: 1rem;
+
+  & > h3 {
+    font-size: 0.65rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray) !important;
+    margin: 0 0 0.5rem !important;
+    opacity: 0.6;
+    border-bottom: none !important;
+  }
+
+  ul { list-style: none; padding: 0; margin: 0; }
+
+  a {
+    display: block;
+    font-size: 0.775rem;
+    color: var(--gray);
+    text-decoration: none;
+    padding: 0.18rem 0.5rem;
+    border-radius: 4px;
+    transition: background 0.1s ease, color 0.1s ease;
+
+    &:hover {
+      background: var(--lightgray);
+      color: var(--darkgray);
+      text-decoration: none;
+    }
+  }
+}
+
+
+// ============================================================
+//  SECCIÓN 14 — PAGE FOOTER + GISCUS
+// ============================================================
+
+.page-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--lightgray);
+}
+
+footer {
+  padding: 1.5rem 0;
+  font-size: 0.75rem;
+  color: var(--gray);
+  border-top: 1px solid var(--lightgray);
+  text-align: center;
+
+  a { color: var(--gray); &:hover { color: var(--secondary); } }
+  p { margin: 0; }
+}
+
+.giscus {
+  margin-top: 2.5rem;
+  iframe { width: 100% !important; }
+}
+
+
+// ============================================================
+//  SECCIÓN 15 — POPOVER PREVIEWS (hover sobre links internos)
+// ============================================================
+
+.popover {
+  border: 1px solid var(--lightgray);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  font-size: 0.825rem;
+
+  .popover-inner {
+    padding: 0.875rem;
+    max-height: 260px;
+    overflow: hidden;
+
+    h1, h2, h3 {
+      font-size: 0.875rem;
+      margin: 0 0 0.4rem;
+      color: var(--darkgray) !important;
+      border-bottom: none !important;
+    }
+
+    p {
+      color: var(--gray);
+      margin: 0 0 0.4rem;
+      line-height: 1.5;
+    }
+  }
+}
+
+
+// ============================================================
+//  SECCIÓN 16 — SEARCH MODAL
+// ============================================================
+
+#search-container {
+  .search-results-container {
+    .result-card {
+      padding: 0.65rem 0.875rem;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background 0.1s ease;
+      margin-bottom: 0.25rem;
+
+      &:hover,
+      &.focus {
+        background: var(--lightgray);
+        border-color: var(--lightgray);
+      }
+
+      .result-card-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--darkgray);
+        margin-bottom: 0.15rem;
+      }
+
+      .result-card-content {
+        font-size: 0.775rem;
+        color: var(--gray);
+        line-height: 1.4;
+      }
+
+      // Segmento resaltado en el resultado de búsqueda
+      .highlight {
+        background: var(--highlight);
+        color: var(--secondary);
+        border-radius: 2px;
+        padding: 0 2px;
+      }
+    }
+  }
+}
+
+
+// ============================================================
+//  SECCIÓN 17 — DARK MODE
+//  Los colores base los inyecta Quartz desde quartz.config.yaml
+//  Aquí solo ajustes que no son posibles con variables de color
 // ============================================================
 
 :root[saved-theme="dark"] {
-  :not(pre) > code {
-    border-color: rgba(255,255,255,0.08);
-    background-color: rgba(255,255,255,0.06);
+  // Código inline — borde sutil en dark
+  .markdown-rendered :not(pre) > code {
+    border-color: rgba(255, 255, 255, 0.09);
+    background: rgba(255, 255, 255, 0.07);
   }
 
+  // Bloques de código — fondo ligeramente distinto al de la página
   pre {
-    background-color: #0d1117;
-    border-color: var(--lightgray);
+    background: #0d1117;
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
+  // Imágenes — borde menos visible
   .markdown-rendered img {
-    border-color: rgba(255,255,255,0.07);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    border-color: rgba(255, 255, 255, 0.07);
   }
 
-  thead th {
-    background-color: rgba(255,255,255,0.03);
+  // Tablas — header row con tinte
+  .markdown-rendered table thead tr {
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  // Sidebar — borde más visible
+  .left.sidebar {
+    border-right-color: var(--lightgray);
   }
 }
 
 
 // ============================================================
-//  20. ACCESIBILIDAD + REDUCED MOTION
+//  SECCIÓN 18 — RESPONSIVE
+// ============================================================
+
+// Tablet (800px – 1200px) — sidebar izquierdo + contenido
+@media (min-width: 800px) and (max-width: 1200px) {
+  .right.sidebar {
+    // En tablet el sidebar derecho va debajo
+    // (el grid lo maneja Quartz con $tabletGrid)
+    position: static;
+    height: auto;
+    padding: 1rem 0 0;
+    border-left: none;
+    border-top: 1px solid var(--lightgray);
+    overflow: visible;
+  }
+}
+
+// Mobile (< 800px)
+@media (max-width: 800px) {
+  .left.sidebar,
+  .right.sidebar {
+    position: static !important;
+    height: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+    border-right: none;
+  }
+
+  .left.sidebar {
+    border-bottom: 1px solid var(--lightgray);
+    padding-bottom: 0.75rem;
+  }
+
+  div.flex-component {
+    margin-top: 0;
+    border-top: 1px solid var(--lightgray);
+  }
+
+  h1.article-title { font-size: 1.5rem !important; }
+
+  .markdown-rendered h2 { font-size: 1.15rem; }
+  .markdown-rendered h3 { font-size: 1rem; }
+
+  pre > code { font-size: 0.75rem; }
+
+  .markdown-rendered table {
+    font-size: 0.75rem;
+  }
+}
+
+
+// ============================================================
+//  SECCIÓN 19 — ACCESIBILIDAD
 // ============================================================
 
 :focus-visible {
@@ -1112,20 +1361,19 @@ a.tag-link,
   }
 }
 
-
 // ============================================================
-//  21. PRINT
+//  SECCIÓN 20 — PRINT
 // ============================================================
 
 @media print {
   .left.sidebar,
   .right.sidebar,
-  .darkmode,
   .giscus,
-  .backlinks,
-  .toc { display: none !important; }
+  .toc,
+  .backlinks { display: none !important; }
 
   .center { grid-column: 1 / -1; }
-  body { font-size: 11pt; }
+  body { font-size: 11pt; color: #000; }
+  a::after { content: " (" attr(href) ")"; font-size: 0.8em; color: #555; }
   pre { white-space: pre-wrap; word-break: break-all; }
 }
