@@ -206,7 +206,7 @@ plugins:
     options:
       provider: giscus
       options:
-        repo: alex03ac/quartz
+        repo: alex03ac/blog
         repoId: R_kgDOTndinw
         category: General
         categoryId: DIC_kwDOTndin84DCQVk
