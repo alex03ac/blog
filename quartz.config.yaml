@@ -16,28 +16,28 @@ configuration:
     fontOrigin: googleFonts
     cdnCaching: true
     typography:
-      header: Inter
+      header: Manrope
       body: Inter
       code: JetBrains Mono
     colors:
       lightMode:
-        light: "#f8fafc"
-        lightgray: "#dbe4f0"
-        gray: "#64748b"
-        darkgray: "#111827"
-        dark: "#0f6fff"
-        secondary: "#2563eb"
-        tertiary: "#3b82f6"
-        highlight: rgba(15,111,255,0.10)
+        light: "#fafafa"
+        lightgray: "#eceef2"
+        gray: "#6b7280"
+        darkgray: "#1f2937"
+        dark: "#c84d73"
+        secondary: "#b54067"
+        tertiary: "#e48aa8"
+        highlight: rgba(200,77,115,.10)
       darkMode:
-        light: "#070b12"
-        lightgray: "#171e2c"
-        gray: "#8d99ae"
-        darkgray: "#eef4ff"
-        dark: "#5eb6ff"
-        secondary: "#3b82f6"
-        tertiary: "#8ecbff"
-        highlight: rgba(94,182,255,0.14)
+        light: "#0d1117"
+        lightgray: "#161b22"
+        gray: "#8b949e"
+        darkgray: "#f0f6fc"
+        dark: "#d14d72"
+        secondary: "#b63f63"
+        tertiary: "#ef8eac"
+        highlight: rgba(209,77,114,.12)
 plugins:
   - source: "@quartz-community/created-modified-date"
     enabled: true
@@ -232,7 +232,7 @@ plugins:
   - source: "@quartz-community/recent-notes"
     enabled: true
     options:
-      title: Notas Recientes
+      title: Recientes
       limit: 5
       linkToMore: false
       showTags: true
